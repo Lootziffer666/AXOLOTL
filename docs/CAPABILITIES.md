@@ -9,8 +9,8 @@ Ein sichtbarer Button oder Dialog gilt hier **nicht** automatisch als Funktion.
 **AXOLOTL lädt weiterhin keine PWA- oder Fremdcode-Module.** Es besitzt jetzt
 aber den kontrollierten Evolver-Kern, über den App-Teile registriert und
 declarative UI-Patches validiert, versioniert und zurückgerollt werden. Aktuell
-sind Borderline, Apps, Files und Browser aktiv. Automate und AI & Models bleiben
-registrierte, aber geplante Module (`NEXT`).
+sind Borderline, Apps, Files, Browser und AI & Models aktiv. Nur Automate bleibt
+als geplantes Modul (`NEXT`) registriert.
 
 Zwei Originalprototypen enthielten Konzepte, die später eine kontrollierte
 Erweiterbarkeit liefern könnten:
@@ -52,7 +52,8 @@ Erweiterbarkeit liefern könnten:
 | Apps | Vorhanden | Liest reale Launcher-Apps, filtert nach Label/Package, startet Apps und öffnet Android-Appdetails |
 | Files | Vorhanden | Navigiert echte DocumentProvider-Verzeichnisse per SAF, behält URI-Rechte und öffnet Dateien über Android |
 | Browser | Vorhanden | Öffnet HTTP/HTTPS in einer gehärteten WebView ohne JavaScript, DOM Storage oder Datei-/Content-Zugriff |
-| Automate / AI | Nur Shell | Karten sind noch nicht klickbare Feature-Implementierungen |
+| AI & Models | Vorhanden | Sendet echte OpenAI-kompatible Chat-Completion-Requests an validierte HTTPS-Endpunkte; Token bleibt im Speicher |
+| Automate | Nur Shell | Karte ist noch keine klickbare Feature-Implementierung |
 | PWA-Module | Nicht vorhanden | Kein PWA-Repository, Editor oder WebView-Container im aktuellen App-Code |
 | Modul-Registry | Vorhanden | Ein stabiler Vertrag registriert Borderline und fünf geplante Module |
 | Evolver-Patches | Vorhanden | Daten-Patches werden gegen UI-/Action-Allowlist, Revision, Tiefe und Größe validiert |
@@ -80,7 +81,11 @@ mehrere UI-Aktionen sind TODO; Secrets/SSRF/Origin-Isolation und belastbare
 Serverauthentifizierung sind nicht produktionsreif. PWA-Module sind HTML in
 einer WebView, keine installierbaren nativen Feature-Module.
 
-**In AXOLOTL:** **nicht übernommen**. Die Karte „AI & Models“ ist nur Shell.
+**In AXOLOTL:** Ein echtes, schmales `AiGateway` ist aktiv. Es sendet
+OpenAI-kompatible Chat-Completion-Requests, trennt Transport von UI, erlaubt nur
+HTTPS-Endpoints auf `chat/completions`, setzt Timeouts und persistiert den Token
+nicht. Provider-Routing, Memory, lokaler Server und PWA-Container folgen als
+separate, testbare Ausbaustufen und werden noch nicht behauptet.
 
 ### 2. App Cluster AI
 
@@ -209,7 +214,7 @@ wenn reale Backends und Tests existieren.
 | Produktbereich | Soll aus den Prototypen | Heute in AXOLOTL |
 | --- | --- | --- |
 | Gemeinsamer Rahmen | Borderline überall verfügbar | Grundkern vorhanden |
-| AI-Gateway | BELLOWS Router + Memory | Nicht vorhanden |
+| AI-Gateway | BELLOWS Router + Memory | Echter OpenAI-kompatibler HTTPS-Client vorhanden; Routing/Memory folgen |
 | PWA-Erweiterungen | BELLOWS HTML-Module | Nicht vorhanden |
 | Apps | Cluster, Inspector, Batch-Aktionen | Reales Inventar/Suche/Öffnen vorhanden; Cluster/Batch folgen |
 | Files | Index, Suche, Versionen | Reale SAF-Navigation/Dateiöffnung vorhanden; Index/Versionen folgen |

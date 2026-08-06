@@ -70,6 +70,9 @@ class MainActivity : ComponentActivity() {
                         bind("browser.open") {
                             startActivity(Intent(this@MainActivity, BrowserActivity::class.java))
                         }
+                        bind("ai-models.open") {
+                            startActivity(Intent(this@MainActivity, AiModelsActivity::class.java))
+                        }
                     }
                 }
                 AxolotlFrame(

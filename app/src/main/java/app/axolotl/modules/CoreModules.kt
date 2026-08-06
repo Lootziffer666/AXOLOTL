@@ -71,6 +71,6 @@ fun createCoreModuleRegistry(): ModuleRegistry = ModuleRegistry(
         NativeFeatureModule(ModuleManifest("files", "Files", "Browse real document-provider folders", 1, ModuleIcon.FILES, setOf(ModuleCapability.FILE_INDEX)), ModuleAction("files.open", "Open files")),
         NativeFeatureModule(ModuleManifest("browser", "Browser", "Hardened HTTP/HTTPS WebView", 1, ModuleIcon.BROWSER, setOf(ModuleCapability.WEB_CONTENT)), ModuleAction("browser.open", "Open browser")),
         PlannedModule(ModuleManifest("automate", "Automate", "Reviewed generative workflows", 1, ModuleIcon.AUTOMATE, setOf(ModuleCapability.GENERATIVE_UI))),
-        PlannedModule(ModuleManifest("ai-models", "AI & Models", "BELLOWS routing, memory and providers", 1, ModuleIcon.AI, setOf(ModuleCapability.AI_GATEWAY))),
+        NativeFeatureModule(ModuleManifest("ai-models", "AI & Models", "OpenAI-compatible HTTPS gateway", 1, ModuleIcon.AI, setOf(ModuleCapability.AI_GATEWAY)), ModuleAction("ai-models.open", "Open AI gateway")),
     ),
 )

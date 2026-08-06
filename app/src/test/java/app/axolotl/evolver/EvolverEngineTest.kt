@@ -11,7 +11,7 @@ class EvolverEngineTest {
 
     @Test
     fun `core registry exposes implemented and planned modules truthfully`() {
-        assertEquals(listOf("borderline", "apps", "files", "browser"), registry.available().map { it.manifest.id })
+        assertEquals(listOf("borderline", "apps", "files", "browser", "ai-models"), registry.available().map { it.manifest.id })
         assertEquals(6, registry.all().size)
     }
 
