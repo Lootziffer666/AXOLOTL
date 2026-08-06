@@ -85,6 +85,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import app.axolotl.data.DockEdge
+import app.axolotl.data.ClipboardCaptureState
 import app.axolotl.ui.DockViewModel
 import app.axolotl.ui.SettingsViewModel
 import app.axolotl.ui.theme.MyApplicationTheme
@@ -694,6 +695,7 @@ fun ProvisioningTab(
     dockViewModel: DockViewModel
 ) {
     val context = LocalContext.current
+    val clipboardCaptureStatus by settingsViewModel.clipboardCaptureStatus.collectAsState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -717,6 +719,44 @@ fun ProvisioningTab(
                                 Toast.makeText(context, if (off) "Emergency Off Active" else "Borderline Active", Toast.LENGTH_SHORT).show()
                             },
                             colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFFEF4444))
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            GlassCard {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.ContentCopy, contentDescription = "Clipboard History", tint = Color(0xFFC084FC), modifier = Modifier.size(32.dp))
+                        Spacer(Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Clipboard History", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
+                            Text(
+                                "Off by default · keeps up to 50 clips for 30 days",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFFA1A1AA)
+                            )
+                            Text(
+                                clipboardCaptureStatus.message,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = when (clipboardCaptureStatus.state) {
+                                    ClipboardCaptureState.BLOCKED -> Color(0xFFEF4444)
+                                    ClipboardCaptureState.FAILED -> Color(0xFFEF4444)
+                                    ClipboardCaptureState.CAPTURED -> Color(0xFF4ADE80)
+                                    ClipboardCaptureState.IDLE -> Color(0xFFA1A1AA)
+                                }
+                            )
+                        }
+                        Switch(
+                            checked = settings.clipboardHistoryEnabled,
+                            onCheckedChange = { enabled ->
+                                settingsViewModel.updateSettings(
+                                    settings.copy(clipboardHistoryEnabled = enabled)
+                                )
+                            },
+                            colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFFA855F7))
                         )
                     }
                 }
@@ -870,7 +910,6 @@ fun LogcatReaderTab(settingsManager: SettingsViewModel) {
     val context = LocalContext.current
     var tagFilter by remember { mutableStateOf("") }
     var logsText by remember { mutableStateOf("") }
-    var isGranted by remember { mutableStateOf(app.axolotl.utils.LogReaderHelper.hasReadLogsPermission(context)) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -880,35 +919,9 @@ fun LogcatReaderTab(settingsManager: SettingsViewModel) {
         item {
             GlassCard {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("READ_LOGS Permission & ADB Status", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
+                    Text("App-only diagnostics", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
                     Spacer(Modifier.height(4.dp))
-                    Text("On Android, READ_LOGS requires a 1-time grant via ADB command:", style = MaterialTheme.typography.bodySmall, color = Color(0xFFA1A1AA))
-                    Spacer(Modifier.height(8.dp))
-
-                    val adbCmd = "adb shell pm grant ${context.packageName} android.permission.READ_LOGS"
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF0F0E17), RoundedCornerShape(12.dp))
-                            .padding(12.dp)
-                    ) {
-                        Text(adbCmd, fontSize = 11.sp, color = Color(0xFFC084FC), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                    }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                        Button(
-                            onClick = {
-                                HandoffHelper.copyToClipboard(context, "ADB Command", adbCmd)
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA855F7))
-                        ) {
-                            Icon(Icons.Filled.ContentCopy, contentDescription = "Copy")
-                            Spacer(Modifier.width(6.dp))
-                            Text("Copy ADB Command")
-                        }
-                    }
+                    Text("Shows only log entries Android exposes to AXOLOTL. No privileged READ_LOGS permission or ADB grant is requested.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFA1A1AA))
                 }
             }
         }
@@ -916,7 +929,7 @@ fun LogcatReaderTab(settingsManager: SettingsViewModel) {
         item {
             GlassCard {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Live Logcat Inspector", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
+                    Text("App Log Inspector", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
                     Spacer(Modifier.height(8.dp))
 
                     OutlinedTextField(

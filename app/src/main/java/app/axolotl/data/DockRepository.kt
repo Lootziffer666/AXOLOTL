@@ -42,7 +42,16 @@ class DockRepository(
     }
 
     suspend fun insertClip(clip: ClipEntity) {
-        clipDao.insertClip(clip)
+        val retainedClip = enforceClipSizeLimit(clip)
+        clipDao.insertDeduplicatedAndTrim(
+            retainedClip,
+            MAX_UNPINNED_CLIPS,
+            System.currentTimeMillis() - CLIP_RETENTION_MILLIS
+        )
+    }
+
+    suspend fun pruneExpiredClips(now: Long = System.currentTimeMillis()) {
+        clipDao.deleteExpiredUnpinnedClips(now - CLIP_RETENTION_MILLIS)
     }
 
     suspend fun deleteClip(clip: ClipEntity) {
@@ -51,5 +60,17 @@ class DockRepository(
 
     suspend fun clearUnpinnedClips() {
         clipDao.clearUnpinnedClips()
+    }
+
+    companion object {
+        const val MAX_UNPINNED_CLIPS = 50
+        const val MAX_CLIP_CHARACTERS = 100_000
+        const val CLIP_RETENTION_DAYS = 30L
+        const val CLIP_RETENTION_MILLIS = CLIP_RETENTION_DAYS * 24 * 60 * 60 * 1000
+
+        internal fun enforceClipSizeLimit(clip: ClipEntity): ClipEntity = clip.copy(
+            content = clip.content.take(MAX_CLIP_CHARACTERS),
+            charCount = clip.content.length.coerceAtMost(MAX_CLIP_CHARACTERS)
+        )
     }
 }

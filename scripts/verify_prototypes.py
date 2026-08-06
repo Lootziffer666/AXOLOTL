@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Validate the prototype catalog against the checked-in AI Studio archives."""
+"""Validate the retained provenance catalog for the imported prototypes."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from zipfile import BadZipFile, ZipFile
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,29 +17,22 @@ def main() -> int:
     if not prototypes:
         raise SystemExit("Prototype catalog is empty")
 
-    declared = {item["archive"] for item in prototypes}
-    actual = {archive.name for archive in ROOT.glob("*.zip")}
-    if declared != actual:
-        missing = sorted(declared - actual)
-        undocumented = sorted(actual - declared)
-        raise SystemExit(
-            f"Catalog mismatch; missing={missing}, undocumented={undocumented}"
-        )
-
+    required_fields = {"sourceArchive", "name", "platform", "domain", "targetModule"}
+    source_archives: set[str] = set()
     for item in prototypes:
-        archive_path = ROOT / item["archive"]
-        try:
-            with ZipFile(archive_path) as archive:
-                metadata = json.loads(archive.read("metadata.json"))
-                if metadata.get("name") != item["name"]:
-                    raise SystemExit(
-                        f"Name mismatch for {archive_path.name}: "
-                        f"{metadata.get('name')!r} != {item['name']!r}"
-                    )
-        except (BadZipFile, KeyError, json.JSONDecodeError) as error:
-            raise SystemExit(f"Invalid prototype {archive_path.name}: {error}") from error
+        missing = required_fields - item.keys()
+        if missing:
+            raise SystemExit(f"Incomplete prototype entry {item.get('name')!r}: {sorted(missing)}")
+        source_archive = item["sourceArchive"]
+        if source_archive in source_archives:
+            raise SystemExit(f"Duplicate source archive: {source_archive}")
+        source_archives.add(source_archive)
 
-    print(f"Verified {len(prototypes)} prototype archives and catalog entries.")
+    checked_in_archives = sorted(archive.name for archive in ROOT.glob("*.zip"))
+    if checked_in_archives:
+        raise SystemExit(f"Prototype archives must not be checked in: {checked_in_archives}")
+
+    print(f"Verified {len(prototypes)} provenance catalog entries; no ZIP archives checked in.")
     return 0
 
 

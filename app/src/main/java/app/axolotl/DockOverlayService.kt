@@ -161,12 +161,18 @@ class DockOverlayService : Service() {
             database.clipDao()
         )
         val settingsManager = SettingsManager.getInstance(this)
+        serviceScope.launch(Dispatchers.IO) {
+            repository.pruneExpiredClips()
+        }
 
         // Clipboard Listener for Clipboard+ & Appendix Clipboard
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboardListener = ClipboardManager.OnPrimaryClipChangedListener {
             val settings = settingsManager.settings.value
             if (settings.emergencyOff || settings.privateMode) return@OnPrimaryClipChangedListener
+            if (!settings.clipboardHistoryEnabled && !settings.appendixMode) {
+                return@OnPrimaryClipChangedListener
+            }
 
             try {
                 val clipData = clipboard.primaryClip
@@ -174,26 +180,33 @@ class DockOverlayService : Service() {
                     val text = clipData.getItemAt(0).text?.toString()
                     if (!text.isNullOrBlank()) {
                         serviceScope.launch(Dispatchers.IO) {
-                            val contentType = if (text.startsWith("http://") || text.startsWith("https://")) "LINK"
-                            else if (text.contains("#") || text.contains("```") || text.contains("- ")) "MARKDOWN"
-                            else "TEXT"
+                            try {
+                                val contentType = if (text.startsWith("http://") || text.startsWith("https://")) "LINK"
+                                else if (text.contains("#") || text.contains("```") || text.contains("- ")) "MARKDOWN"
+                                else "TEXT"
 
-                            repository.insertClip(
-                                ClipEntity(
-                                    content = text,
-                                    contentType = contentType,
-                                    charCount = text.length
-                                )
-                            )
+                                if (settings.clipboardHistoryEnabled) {
+                                    repository.insertClip(
+                                        ClipEntity(
+                                            content = text,
+                                            contentType = contentType,
+                                            charCount = text.length
+                                        )
+                                    )
+                                }
 
-                            if (settings.appendixMode) {
-                                settingsManager.appendToAppendix(text)
+                                if (settings.appendixMode) {
+                                    settingsManager.appendToAppendix(text)
+                                }
+                                settingsManager.reportClipboardCaptured()
+                            } catch (_: Exception) {
+                                settingsManager.reportClipboardCaptureFailed()
                             }
                         }
                     }
                 }
-            } catch (e: Exception) {
-                // Background clipboard restriction on newer Android versions
+            } catch (error: Exception) {
+                settingsManager.reportClipboardBlocked(error)
             }
         }
         clipboard.addPrimaryClipChangedListener(clipboardListener)
@@ -831,8 +844,8 @@ fun QuickActionsAndCaptureTab(
             }
         }
 
-        // Logcat Inspection Section (READ_LOGS)
-        Text("READ_LOGS Logcat Inspector", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
+        // Android only exposes logs visible to this app; no privileged READ_LOGS access.
+        Text("App Diagnostics", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
 
         var logText by remember { mutableStateOf("") }
         var isReadingLogs by remember { mutableStateOf(false) }
