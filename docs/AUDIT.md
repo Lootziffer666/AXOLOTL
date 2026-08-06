@@ -46,8 +46,10 @@ noch nicht abschließend berücksichtigt.
 - **Private Mode ist kein Vault:** Er stoppt neue Clipboard-Aufnahmen, schützt
   aber bereits gespeicherte Clips/Snippets weder durch Verschlüsselung noch
   durch Authentifizierung.
-- **Clipboard-Limit ist nur ein Query-Limit:** Die DAO zeigt 50 Clips, löscht
-  ältere Datensätze jedoch nicht aus der Datenbank.
+- **Clipboard-Inhalte bleiben unverschlüsselt:** Duplikate werden inzwischen
+  ersetzt, Einträge auf 100.000 Zeichen begrenzt und ältere, nicht angeheftete
+  Einträge nach 50 Datensätzen wirklich gelöscht. Für sensible Inhalte fehlen
+  aber weiterhin Verschlüsselung und eine zeitbasierte Retention.
 - **IBAN wird nicht validiert:** Der Text „Validated IBAN“ basiert nur auf einem
   Regex-Match; eine Mod-97-Prüfung fehlt.
 - **Fehler werden verschluckt:** Einschränkungen des Background-Clipboard werden
@@ -85,8 +87,8 @@ Automate sowie AI & Models und öffnet Borderline als gemeinsamen Rahmen.
 | AI-Studio-Metadaten, generisches README, `.aistudio`, `.env` und Signing-Artefakte nicht in die App kopiert | Generierter Ballast und Secret-Risiko |
 | Screenshot-/App-Namens-Tests auf AXOLOTL angepasst | Alte Tests referenzierten eine nicht vorhandene `Greeting`-Composable bzw. „My Application“ |
 
-Das unveränderte ZIP bleibt ausschließlich als Provenienzreferenz im Repository;
-es ist nicht Teil des Android-Builds.
+Der Name des inzwischen entfernten Quell-ZIPs bleibt im Provenienzkatalog
+dokumentiert; das Archiv ist nicht Teil des Repositorys oder Android-Builds.
 
 ## Offene Risiken, priorisiert
 
@@ -106,8 +108,8 @@ es ist nicht Teil des Android-Builds.
 1. Borderline-Zustand aus Activity/Service in gemeinsame Core-Repositories
    verschieben und per Dependency Injection bereitstellen.
 2. UI-Einstellungen entweder vollständig verdrahten oder entfernen.
-3. Clipboard-Deduplizierung, Größenlimit und Hintergrundrestriktionsstatus
-   implementieren.
+3. Status und Diagnose für moderne Android-Hintergrundrestriktionen des
+   Clipboards implementieren.
 4. Quick-Action-Erkennung als reine, umfassend getestete Domainlogik auslagern;
    IBAN korrekt validieren.
 5. Service- und Receiver-Lifecycle, Prozessneustart und Emergency-Off mit
@@ -119,8 +121,8 @@ es ist nicht Teil des Android-Builds.
   den Build zu übernehmen.
 - `rg` über Imports, Manifest, Room, Intents, Berechtigungen und TODOs trennt
   tatsächlich ausführenden Code von Labels und deklarierten Dependencies.
-- `scripts/verify_prototypes.py` stellt sicher, dass nur die sechs vereinbarten
-  Prototype-Archive als Referenzen vorliegen.
+- `scripts/verify_prototypes.py` validiert die sechs Provenienzeinträge und
+  stellt sicher, dass keine Prototype-ZIP-Dateien eingecheckt sind.
 - Gradle-Tests sind der verbindliche Buildcheck; Netzwerk-/SDK-Einschränkungen
   müssen als solche ausgewiesen und dürfen nicht als bestandener Test behauptet
   werden.

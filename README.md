@@ -1,8 +1,9 @@
 # AXOLOTL
 
 AXOLOTL bündelt die in diesem Repository abgelegten AI-Studio-Prototypen zu
-einer Android-App. Die Archive bleiben zunächst unverändert als Referenz; die
-verbindliche Produkt- und Integrationsarchitektur steht in
+einer Android-App. Die entfernten Quellarchive sind weiterhin im
+Provenienzkatalog dokumentiert; die verbindliche Produkt- und
+Integrationsarchitektur steht in
 [`docs/INTEGRATION.md`](docs/INTEGRATION.md).
 
 ## Enthaltene Prototypen
@@ -18,7 +19,7 @@ verbindliche Produkt- und Integrationsarchitektur steht in
 
 Die maschinenlesbare Bestandsaufnahme liegt in
 [`docs/prototypes.json`](docs/prototypes.json). Sie kann ohne Entpacken der
-Archive geprüft werden:
+Provenienzeinträge geprüft werden:
 
 ```bash
 python3 scripts/verify_prototypes.py
@@ -42,8 +43,8 @@ eigenes APK installiert werden können. Details: [`docs/MODULES.md`](docs/MODULE
 gradle testDebugUnitTest
 ```
 
-Für lokale Builds wird JDK 17 empfohlen. Die übrigen ZIP-Archive bleiben bis zur
-schrittweisen Migration unveränderte Referenzen.
+Für lokale Builds wird JDK 17 empfohlen. Binäre Quellarchive werden nach der
+Migration nicht im Repository aufbewahrt.
 
 Der Workflow [`.github/workflows/android.yml`](.github/workflows/android.yml)
 validiert die Modulverträge, kompiliert Shell und gebündelte Module, führt die
