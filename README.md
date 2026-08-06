@@ -24,6 +24,21 @@ Archive geprüft werden:
 python3 scripts/verify_prototypes.py
 ```
 
+## Entwicklung
+
+Die Zusammenführung hat mit Borderline als ausführbarem App-Rahmen begonnen.
+Das Android-Projekt liegt in `app/`; die AXOLOTL-Startseite öffnet das bestehende
+Borderline Control Center und zeigt die nächsten zu migrierenden Workspaces.
+Eine genaue Trennung zwischen dem von Gemini erzeugten Funktionsumfang, den
+übernommenen Teilen und den offenen Risiken steht in [`docs/AUDIT.md`](docs/AUDIT.md).
+
+```bash
+gradle testDebugUnitTest
+```
+
+Für lokale Builds wird JDK 17 empfohlen. Die übrigen ZIP-Archive bleiben bis zur
+schrittweisen Migration unveränderte Referenzen.
+
 ## Leitentscheidung
 
 AXOLOTL wird **eine native Android-App mit modularen Feature-Grenzen**.
