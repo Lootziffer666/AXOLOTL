@@ -46,6 +46,12 @@ gradle testDebugUnitTest
 Für lokale Builds wird JDK 17 empfohlen. Binäre Quellarchive werden nach der
 Migration nicht im Repository aufbewahrt.
 
+Die ursprünglichen ZIP-Exporte werden für Build und Weiterentwicklung nicht
+mehr benötigt. Für spätere Provenienz- oder Wiederherstellungsprüfungen sollten
+sie außerhalb von Git in einem zugriffsgeschützten, versionierten Archiv
+aufbewahrt werden; ihre ursprünglichen Dateinamen bleiben in
+`docs/prototypes.json` dokumentiert.
+
 Der Workflow [`.github/workflows/android.yml`](.github/workflows/android.yml)
 validiert die Modulverträge, kompiliert Shell und gebündelte Module, führt die
 Tests aus und veröffentlicht Debug-APK, die separat installierbaren Apps- und

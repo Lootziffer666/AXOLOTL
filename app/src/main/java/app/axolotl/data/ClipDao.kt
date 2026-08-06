@@ -19,6 +19,9 @@ interface ClipDao {
     @Query("DELETE FROM clips WHERE isPinned = 0 AND content = :content")
     suspend fun deleteUnpinnedDuplicates(content: String)
 
+    @Query("SELECT COUNT(*) FROM clips WHERE isPinned = 1 AND content = :content")
+    suspend fun countPinnedClips(content: String): Int
+
     @Query(
         """DELETE FROM clips
            WHERE isPinned = 0 AND id NOT IN (
@@ -31,7 +34,9 @@ interface ClipDao {
     @Transaction
     suspend fun insertDeduplicatedAndTrim(clip: ClipEntity, limit: Int) {
         deleteUnpinnedDuplicates(clip.content)
-        insertClip(clip)
+        if (clip.isPinned || countPinnedClips(clip.content) == 0) {
+            insertClip(clip)
+        }
         trimUnpinnedClips(limit)
     }
 
