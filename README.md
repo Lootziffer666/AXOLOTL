@@ -45,6 +45,13 @@ gradle testDebugUnitTest
 Für lokale Builds wird JDK 17 empfohlen. Die übrigen ZIP-Archive bleiben bis zur
 schrittweisen Migration unveränderte Referenzen.
 
+Der Workflow [`.github/workflows/android.yml`](.github/workflows/android.yml)
+validiert die Modulverträge, kompiliert Shell und gebündelte Module, führt die
+Tests aus und veröffentlicht Debug-APK sowie Testreports. Separat installierbare
+Modul-Repositories können
+[`build-module.yml`](.github/workflows/build-module.yml) als wiederverwendbaren
+Workflow aufrufen.
+
 ## Leitentscheidung
 
 AXOLOTL wird **eine native Android-App mit modularen Feature-Grenzen**.

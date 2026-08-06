@@ -49,3 +49,31 @@ Discovery erlaubt nur das Öffnen einer vom Modul exportierten Oberfläche. Sie
 Datenaustausch benötigt zukünftig versionierte, permission-geschützte
 ContentProvider-/Binder-Verträge. Eine Modul-ID darf nur Kleinbuchstaben,
 Ziffern und Bindestriche enthalten; doppelte IDs werden nicht registriert.
+
+## Kompilieren
+
+Der Hauptworkflow `.github/workflows/android.yml` führt zwei getrennte Gates
+aus:
+
+1. `verify_android_modules.py` validiert Discovery-Action, Export-Status,
+   Pflichtmetadaten, eindeutige IDs und vorhandene Activity-Quellen.
+2. Gradle kompiliert `:app:assembleDebug`. Weil die aktuell gebündelten Module
+   Android-Quellen desselben APKs sind, werden sie dabei gemeinsam typgeprüft
+   und in `app-debug.apk` paketiert. Anschließend läuft `:app:testDebugUnitTest`.
+
+Für ein in ein eigenes Repository/APK ausgelagertes Modul steht
+`.github/workflows/build-module.yml` als `workflow_call` bereit. Der aufrufende
+Workflow übergibt seine Assemble-Task und optional den APK-Pfad:
+
+```yaml
+jobs:
+  build:
+    uses: owner/axolotl/.github/workflows/build-module.yml@main
+    with:
+      gradle-task: :module:assembleDebug
+      artifact-path: module/build/outputs/apk/debug/*.apk
+```
+
+Beide Workflows verwenden JDK 17 und Gradle 8.9 und brechen ab, wenn kein APK
+erzeugt wurde. Der Hauptworkflow lehnt außerdem binäre Bildressourcen unter
+`app/src` ab.
