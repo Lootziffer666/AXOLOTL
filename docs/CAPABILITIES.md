@@ -10,7 +10,9 @@ Ein sichtbarer Button oder Dialog gilt hier **nicht** automatisch als Funktion.
 aber den kontrollierten Evolver-Kern, über den App-Teile registriert und
 declarative UI-Patches validiert, versioniert und zurückgerollt werden. Aktuell
 sind alle sechs registrierten Bereiche aktiv: Borderline, Apps, Files, Browser,
-AI & Models und Automate.
+AI & Models und Automate. Nur Borderline ist zwingender Kern; die übrigen fünf
+werden über Android-Manifest-Metadaten entdeckt und sind einzeln entfernbar oder
+als separates APK installierbar.
 
 Zwei Originalprototypen enthielten Konzepte, die später eine kontrollierte
 Erweiterbarkeit liefern könnten:
@@ -54,7 +56,7 @@ Erweiterbarkeit liefern könnten:
 | AI & Models | Vorhanden | Sendet echte OpenAI-kompatible Chat-Completion-Requests an validierte HTTPS-Endpunkte; Token bleibt im Speicher |
 | Automate | Vorhanden | Wählt aktive Module, validiert manuelle deklarative Patches, versioniert sie und rollt sie zurück |
 | PWA-Module | Nicht vorhanden | Kein PWA-Repository, Editor oder WebView-Container im aktuellen App-Code |
-| Modul-Registry | Vorhanden | Ein stabiler Vertrag registriert Borderline und fünf geplante Module |
+| Modul-Discovery | Vorhanden | PackageManager entdeckt optionale Modul-Activities aus demselben oder separaten APKs |
 | Evolver-Patches | Vorhanden | Daten-Patches werden gegen UI-/Action-Allowlist, Revision, Tiefe und Größe validiert |
 | Rollback | Teilweise | Prozessweite In-Memory-Snapshots funktionieren; persistente Room-Snapshots folgen |
 | Selbst-Erweiterung | Kontrolliert vorbereitet | Module und UI-Daten sind erweiterbar; kein Fremdcode- oder PWA-Lader |

@@ -19,7 +19,10 @@ class AutomateActivity : ComponentActivity() {
     private lateinit var heading: EditText
     private lateinit var paragraph: EditText
     private lateinit var status: TextView
-    private val availableModules = AxolotlRuntime.registry.available()
+    private val availableModules by lazy {
+        AxolotlRuntime.initialize(applicationContext)
+        AxolotlRuntime.registry.available()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -50,12 +50,5 @@ class NativeFeatureModule(
 }
 
 fun createCoreModuleRegistry(): ModuleRegistry = ModuleRegistry(
-    listOf(
-        BorderlineModule(),
-        NativeFeatureModule(ModuleManifest("apps", "Apps", "Search and open installed launcher apps", 1, ModuleIcon.APPS, setOf(ModuleCapability.APP_CATALOG)), ModuleAction("apps.open", "Open apps")),
-        NativeFeatureModule(ModuleManifest("files", "Files", "Browse real document-provider folders", 1, ModuleIcon.FILES, setOf(ModuleCapability.FILE_INDEX)), ModuleAction("files.open", "Open files")),
-        NativeFeatureModule(ModuleManifest("browser", "Browser", "Hardened HTTP/HTTPS WebView", 1, ModuleIcon.BROWSER, setOf(ModuleCapability.WEB_CONTENT)), ModuleAction("browser.open", "Open browser")),
-        NativeFeatureModule(ModuleManifest("automate", "Automate", "Review, apply and roll back declarative UI patches", 1, ModuleIcon.AUTOMATE, setOf(ModuleCapability.GENERATIVE_UI)), ModuleAction("automate.open", "Open Evolver")),
-        NativeFeatureModule(ModuleManifest("ai-models", "AI & Models", "OpenAI-compatible HTTPS gateway", 1, ModuleIcon.AI, setOf(ModuleCapability.AI_GATEWAY)), ModuleAction("ai-models.open", "Open AI gateway")),
-    ),
+    listOf(BorderlineModule()),
 )

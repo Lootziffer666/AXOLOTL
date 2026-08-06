@@ -48,38 +48,32 @@ import app.axolotl.evolver.ModuleActionDispatcher
 import app.axolotl.evolver.ModuleAvailability
 import app.axolotl.evolver.ModuleIcon
 import app.axolotl.modules.AxolotlRuntime
+import app.axolotl.modules.createCoreModuleRegistry
 import app.axolotl.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        AxolotlRuntime.initialize(applicationContext)
+        val moduleRegistry = AxolotlRuntime.registry
         setContent {
             MyApplicationTheme(darkTheme = true) {
                 val dispatcher = remember {
-                    ModuleActionDispatcher(coreModuleRegistry).apply {
+                    ModuleActionDispatcher(moduleRegistry).apply {
                         bind("borderline.open") {
                             startActivity(Intent(this@MainActivity, BorderlineActivity::class.java))
                         }
-                        bind("files.open") {
-                            startActivity(Intent(this@MainActivity, FilesActivity::class.java))
-                        }
-                        bind("apps.open") {
-                            startActivity(Intent(this@MainActivity, AppsActivity::class.java))
-                        }
-                        bind("browser.open") {
-                            startActivity(Intent(this@MainActivity, BrowserActivity::class.java))
-                        }
-                        bind("ai-models.open") {
-                            startActivity(Intent(this@MainActivity, AiModelsActivity::class.java))
-                        }
-                        bind("automate.open") {
-                            startActivity(Intent(this@MainActivity, AutomateActivity::class.java))
+                        moduleRegistry.all().filterNot { it.manifest.id == "borderline" }.forEach { module ->
+                            bind("${module.manifest.id}.open") {
+                                AxolotlRuntime.open(this@MainActivity, module.manifest.id)
+                            }
                         }
                     }
                 }
                 AxolotlFrame(
                     onOpenBorderline = { dispatcher.dispatch("borderline", "borderline.open") },
+                    modules = moduleRegistry.all(),
                     onOpenModule = { module ->
                         module.actions.firstOrNull()?.let { dispatcher.dispatch(module.manifest.id, it.id) }
                     },
@@ -89,11 +83,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-internal val coreModuleRegistry = AxolotlRuntime.registry
-
 @Composable
 internal fun AxolotlFrame(
     onOpenBorderline: () -> Unit,
+    modules: List<AxolotlModule> = createCoreModuleRegistry().all(),
     onOpenModule: (AxolotlModule) -> Unit = {},
 ) {
     val background = Brush.verticalGradient(
@@ -118,7 +111,7 @@ internal fun AxolotlFrame(
                 )
             }
             items(
-                coreModuleRegistry.all().filterNot { it.manifest.id == "borderline" },
+                modules.filterNot { it.manifest.id == "borderline" },
                 key = { it.manifest.id },
             ) { WorkspaceCard(it, onOpenModule) }
         }

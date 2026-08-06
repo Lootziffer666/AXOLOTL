@@ -35,6 +35,12 @@ Automate stellt den manuellen, validierten Apply-/Rollback-Pfad für deklarative
 Moduloberflächen bereit. Ein neues Feature wird künftig durch eine
 `AxolotlModule`-Implementierung eingehängt, statt die App-Shell direkt zu ändern.
 
+Die Shell setzt dabei nur Borderline voraus. `InstalledModuleDiscovery` findet
+alle weiteren Activities über `app.axolotl.action.MODULE` und Manifest-Metadaten
+und hält lediglich deren explizite `ComponentName`. Dadurch referenziert die
+Shell keine optionale Feature-Klasse: Entfernen, Kopieren oder die Installation
+als separates APK verändert nur das Discovery-Ergebnis beim nächsten Start.
+
 ```text
 :app                    App-Shell, Navigation, Deep Links, Onboarding
 ├── :core:model         gemeinsame IDs, Resultate und Domain-Events

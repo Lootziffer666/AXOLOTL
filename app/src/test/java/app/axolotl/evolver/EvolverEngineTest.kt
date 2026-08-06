@@ -10,9 +10,8 @@ class EvolverEngineTest {
     private val engine = EvolverEngine(registry)
 
     @Test
-    fun `core registry exposes all implemented modules`() {
-        assertEquals(6, registry.available().size)
-        assertEquals(6, registry.all().size)
+    fun `core registry exposes only the required frame`() {
+        assertEquals(listOf("borderline"), registry.available().map { it.manifest.id })
     }
 
     @Test
