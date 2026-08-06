@@ -9,8 +9,8 @@ Ein sichtbarer Button oder Dialog gilt hier **nicht** automatisch als Funktion.
 **AXOLOTL lädt weiterhin keine PWA- oder Fremdcode-Module.** Es besitzt jetzt
 aber den kontrollierten Evolver-Kern, über den App-Teile registriert und
 declarative UI-Patches validiert, versioniert und zurückgerollt werden. Aktuell
-sind Borderline, Apps, Files, Browser und AI & Models aktiv. Nur Automate bleibt
-als geplantes Modul (`NEXT`) registriert.
+sind alle sechs registrierten Bereiche aktiv: Borderline, Apps, Files, Browser,
+AI & Models und Automate.
 
 Zwei Originalprototypen enthielten Konzepte, die später eine kontrollierte
 Erweiterbarkeit liefern könnten:
@@ -29,7 +29,6 @@ Erweiterbarkeit liefern könnten:
 - **Vorhanden:** ausführender Code ist in AXOLOTL enthalten.
 - **Teilweise:** Code existiert, hat aber relevante Plattform- oder
   Produktlücken.
-- **Nur Shell:** sichtbarer AXOLOTL-Einstieg ohne migrierte Funktion.
 - **Nicht übernommen:** nur im Original-ZIP vorhanden.
 - **Mock im Original:** schon im Gemini-Prototyp nur In-Memory-Demo, Dialog oder
   Statusumschalter ohne behauptetes Backend.
@@ -53,11 +52,11 @@ Erweiterbarkeit liefern könnten:
 | Files | Vorhanden | Navigiert echte DocumentProvider-Verzeichnisse per SAF, behält URI-Rechte und öffnet Dateien über Android |
 | Browser | Vorhanden | Öffnet HTTP/HTTPS in einer gehärteten WebView ohne JavaScript, DOM Storage oder Datei-/Content-Zugriff |
 | AI & Models | Vorhanden | Sendet echte OpenAI-kompatible Chat-Completion-Requests an validierte HTTPS-Endpunkte; Token bleibt im Speicher |
-| Automate | Nur Shell | Karte ist noch keine klickbare Feature-Implementierung |
+| Automate | Vorhanden | Wählt aktive Module, validiert manuelle deklarative Patches, versioniert sie und rollt sie zurück |
 | PWA-Module | Nicht vorhanden | Kein PWA-Repository, Editor oder WebView-Container im aktuellen App-Code |
 | Modul-Registry | Vorhanden | Ein stabiler Vertrag registriert Borderline und fünf geplante Module |
 | Evolver-Patches | Vorhanden | Daten-Patches werden gegen UI-/Action-Allowlist, Revision, Tiefe und Größe validiert |
-| Rollback | Teilweise | In-Memory-Snapshots funktionieren; persistente Room-Snapshots folgen |
+| Rollback | Teilweise | Prozessweite In-Memory-Snapshots funktionieren; persistente Room-Snapshots folgen |
 | Selbst-Erweiterung | Kontrolliert vorbereitet | Module und UI-Daten sind erweiterbar; kein Fremdcode- oder PWA-Lader |
 
 ## Vergleich mit den sechs Originalprototypen
@@ -162,8 +161,11 @@ für privilegierte Funktionen. Es modifiziert keinen nativen App-Code.
 **In AXOLOTL:** Das ursprüngliche Netzwerk-/Repository-System ist nicht
 übernommen. Stattdessen ist sein sicheres Prinzip neu implementiert: Module
 melden Manifest, Fähigkeiten und erlaubte Aktionen an; Evolver akzeptiert nur
-declarative Allowlist-Knoten und kann Revisionen zurückrollen. Ein LLM-Adapter
-und persistente Snapshots sind bewusst noch nicht angeschlossen.
+deklarative Allowlist-Knoten und kann Revisionen zurückrollen. Das aktive
+Automate-Modul bietet dafür jetzt eine reale Review-Oberfläche: Zielmodul
+wählen, Heading/Paragraph als Datenpatch prüfen und anwenden oder den letzten
+Patch zurückrollen. Ein LLM-Adapter und persistente Snapshots sind bewusst noch
+nicht angeschlossen.
 
 ### 5. Borderline / Hyperdock
 
@@ -221,7 +223,7 @@ wenn reale Backends und Tests existieren.
 | Vault/Remote Files | Sicherer Vault, SMB/FTP | Auch im Original nur Mock; nicht übernehmen |
 | Browser | WebView-Tabs + sichere Module | Gehärtete Single-WebView vorhanden; Tabs/Module folgen |
 | MCP/GitHub/Notebook | reale Integrationen | Im Original überwiegend Mock; nicht vorhanden |
-| Generative UI | Evolver-Schema + Review/Rollback | Sicherer Runtime-Kern vorhanden; Renderer/LLM/Persistenz folgen |
+| Generative UI | Evolver-Schema + Review/Rollback | Manueller Review-/Apply-/Rollback-Pfad vorhanden; Renderer/LLM/Persistenz folgen |
 | Selbstmodifikation | kontrollierte Erweiterbarkeit | Modul-/Datenpatches vorhanden; beliebige Codeausführung ausgeschlossen |
 
 ## Nächster sinnvoller Integrationsschritt

@@ -27,14 +27,13 @@ Revision, Node-Anzahl/-Tiefe, eindeutige IDs und registrierte Actions und führt
 Snapshots/Rollback. `ModuleActionDispatcher` führt nur Actions aktiver Module
 aus, für die die App explizit einen Handler gebunden hat.
 
-Borderline, Apps, Files, Browser und AI & Models sind aktive Module. Apps liest reale
+Alle sechs Bereiche sind jetzt aktive Module. Apps liest reale
 Launcher-Aktivitäten; Files navigiert DocumentProvider-Verzeichnisse über SAF;
 Browser stellt eine minimal gehärtete HTTP/HTTPS-WebView bereit; AI & Models
 sendet echte OpenAI-kompatible Requests über eine getrennte `AiGateway`-Grenze.
-Automate ist als `PLANNED` registriert und kann deshalb weder Evolver-Patches
-noch Actions ausführen. Ein neues Feature wird künftig durch eine
-`AxolotlModule`-Implementierung eingehängt, statt die App-Shell direkt zu
-verändern.
+Automate stellt den manuellen, validierten Apply-/Rollback-Pfad für deklarative
+Moduloberflächen bereit. Ein neues Feature wird künftig durch eine
+`AxolotlModule`-Implementierung eingehängt, statt die App-Shell direkt zu ändern.
 
 ```text
 :app                    App-Shell, Navigation, Deep Links, Onboarding

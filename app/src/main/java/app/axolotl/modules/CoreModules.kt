@@ -32,21 +32,6 @@ class BorderlineModule : AxolotlModule {
     )
 }
 
-class PlannedModule(
-    override val manifest: ModuleManifest,
-) : AxolotlModule {
-    override val availability = ModuleAvailability.PLANNED
-    override val actions = emptySet<ModuleAction>()
-    override fun initialSurface() = ModuleSurface(
-        moduleId = manifest.id,
-        revision = 0,
-        nodes = listOf(
-            UiNode.Heading("title", manifest.title),
-            UiNode.Paragraph("status", "Migration is planned but not installed."),
-        ),
-    )
-}
-
 class NativeFeatureModule(
     override val manifest: ModuleManifest,
     private val action: ModuleAction,
@@ -70,7 +55,7 @@ fun createCoreModuleRegistry(): ModuleRegistry = ModuleRegistry(
         NativeFeatureModule(ModuleManifest("apps", "Apps", "Search and open installed launcher apps", 1, ModuleIcon.APPS, setOf(ModuleCapability.APP_CATALOG)), ModuleAction("apps.open", "Open apps")),
         NativeFeatureModule(ModuleManifest("files", "Files", "Browse real document-provider folders", 1, ModuleIcon.FILES, setOf(ModuleCapability.FILE_INDEX)), ModuleAction("files.open", "Open files")),
         NativeFeatureModule(ModuleManifest("browser", "Browser", "Hardened HTTP/HTTPS WebView", 1, ModuleIcon.BROWSER, setOf(ModuleCapability.WEB_CONTENT)), ModuleAction("browser.open", "Open browser")),
-        PlannedModule(ModuleManifest("automate", "Automate", "Reviewed generative workflows", 1, ModuleIcon.AUTOMATE, setOf(ModuleCapability.GENERATIVE_UI))),
+        NativeFeatureModule(ModuleManifest("automate", "Automate", "Review, apply and roll back declarative UI patches", 1, ModuleIcon.AUTOMATE, setOf(ModuleCapability.GENERATIVE_UI)), ModuleAction("automate.open", "Open Evolver")),
         NativeFeatureModule(ModuleManifest("ai-models", "AI & Models", "OpenAI-compatible HTTPS gateway", 1, ModuleIcon.AI, setOf(ModuleCapability.AI_GATEWAY)), ModuleAction("ai-models.open", "Open AI gateway")),
     ),
 )

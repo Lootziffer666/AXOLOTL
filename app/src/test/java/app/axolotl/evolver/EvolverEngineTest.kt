@@ -10,8 +10,8 @@ class EvolverEngineTest {
     private val engine = EvolverEngine(registry)
 
     @Test
-    fun `core registry exposes implemented and planned modules truthfully`() {
-        assertEquals(listOf("borderline", "apps", "files", "browser", "ai-models"), registry.available().map { it.manifest.id })
+    fun `core registry exposes all implemented modules`() {
+        assertEquals(6, registry.available().size)
         assertEquals(6, registry.all().size)
     }
 
@@ -35,7 +35,7 @@ class EvolverEngineTest {
     }
 
     @Test
-    fun `unknown actions and planned module patches are rejected`() {
+    fun `unknown actions and modules are rejected`() {
         val unknownAction = engine.propose(
             EvolutionPatch(
                 "borderline",
@@ -44,12 +44,12 @@ class EvolverEngineTest {
                 listOf(UiNode.Action("bad", "system.shell", "Run")),
             ),
         )
-        val plannedModule = engine.propose(
-            EvolutionPatch("automate", 0, "Premature patch", listOf(UiNode.Heading("h", "Automate"))),
+        val unknownModule = engine.propose(
+            EvolutionPatch("missing", 0, "Unknown target", listOf(UiNode.Heading("h", "Missing"))),
         )
 
         assertTrue(unknownAction is EvolutionResult.Rejected)
-        assertTrue(plannedModule is EvolutionResult.Rejected)
+        assertTrue(unknownModule is EvolutionResult.Rejected)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -66,7 +66,7 @@ class EvolverEngineTest {
 
         assertEquals(ActionDispatchResult.Executed, dispatcher.dispatch("borderline", "borderline.open"))
         assertTrue(dispatcher.dispatch("borderline", "system.shell") is ActionDispatchResult.Rejected)
-        assertTrue(dispatcher.dispatch("automate", "borderline.open") is ActionDispatchResult.Rejected)
+        assertTrue(dispatcher.dispatch("missing", "borderline.open") is ActionDispatchResult.Rejected)
         assertEquals(1, calls)
     }
 }

@@ -61,6 +61,7 @@
         <activity android:name=".BrowserActivity" android:exported="false" android:label="Browser" />
         <activity android:name=".AppsActivity" android:exported="false" android:label="Apps" />
         <activity android:name=".AiModelsActivity" android:exported="false" android:label="AI &amp; Models" />
+        <activity android:name=".AutomateActivity" android:exported="false" android:label="Automate" />
 
         <activity
             android:name=".MainActivity"

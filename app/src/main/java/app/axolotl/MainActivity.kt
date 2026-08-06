@@ -47,7 +47,7 @@ import app.axolotl.evolver.AxolotlModule
 import app.axolotl.evolver.ModuleActionDispatcher
 import app.axolotl.evolver.ModuleAvailability
 import app.axolotl.evolver.ModuleIcon
-import app.axolotl.modules.createCoreModuleRegistry
+import app.axolotl.modules.AxolotlRuntime
 import app.axolotl.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -73,6 +73,9 @@ class MainActivity : ComponentActivity() {
                         bind("ai-models.open") {
                             startActivity(Intent(this@MainActivity, AiModelsActivity::class.java))
                         }
+                        bind("automate.open") {
+                            startActivity(Intent(this@MainActivity, AutomateActivity::class.java))
+                        }
                     }
                 }
                 AxolotlFrame(
@@ -86,7 +89,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-internal val coreModuleRegistry = createCoreModuleRegistry()
+internal val coreModuleRegistry = AxolotlRuntime.registry
 
 @Composable
 internal fun AxolotlFrame(
