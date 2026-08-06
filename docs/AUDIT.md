@@ -54,8 +54,10 @@ noch nicht abschließend berücksichtigt.
   Regex-Match; eine Mod-97-Prüfung fehlt.
 - **Fehler werden verschluckt:** Einschränkungen des Background-Clipboard werden
   pauschal gefangen, ohne Status für Nutzer oder Diagnose.
-- **Datenbankmigration:** `fallbackToDestructiveMigration()` kann Nutzerdaten bei
-  Schemaänderungen löschen.
+- **Historische Migrationen nicht rekonstruierbar:** Der destruktive Fallback
+  wurde entfernt und Schema 2 als versionierte Ausgangsbasis exportiert. Der
+  Originalexport enthielt ebenfalls nur Version 2; deshalb wird keine
+  spekulative Migration von einer unbekannten Version 1 implementiert.
 
 ## Was in AXOLOTL übernommen wurde
 
@@ -100,7 +102,8 @@ dokumentiert; das Archiv ist nicht Teil des Repositorys oder Android-Builds.
    prüfen; wenn möglich durch engere APIs ersetzen.
 3. Foreground-Service-Typ, Notification-Permission und Startrestriktionen auf
    Android 13–15 auf Geräten testen.
-4. Explizite Room-Migrationen statt destruktivem Fallback schreiben.
+4. Bei jeder künftigen Schemaänderung eine explizite Room-Migration samt
+   Migrationstest gegen die versionierten Schemas schreiben.
 5. Deep Links mit Android App Links oder bestätigender UI absichern.
 
 ### P1 – bevor weitere Features andocken
