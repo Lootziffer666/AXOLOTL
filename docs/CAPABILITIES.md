@@ -9,8 +9,8 @@ Ein sichtbarer Button oder Dialog gilt hier **nicht** automatisch als Funktion.
 **AXOLOTL lädt weiterhin keine PWA- oder Fremdcode-Module.** Es besitzt jetzt
 aber den kontrollierten Evolver-Kern, über den App-Teile registriert und
 declarative UI-Patches validiert, versioniert und zurückgerollt werden. Aktuell
-ist Borderline das einzige aktive Modul. Apps, Files, Browser, Automate und
-AI & Models sind registrierte, aber geplante Module (`NEXT`).
+sind Borderline, Files und Browser aktiv. Apps, Automate und AI & Models bleiben
+registrierte, aber geplante Module (`NEXT`).
 
 Zwei Originalprototypen enthielten Konzepte, die später eine kontrollierte
 Erweiterbarkeit liefern könnten:
@@ -49,7 +49,9 @@ Erweiterbarkeit liefern könnten:
 | Handoffs | Vorhanden | Share, Websuche, Maps und „Send to AI“ über Android-App-Chooser |
 | Logcat Inspector | Teilweise | Funktioniert nur mit privilegiertem `READ_LOGS`-ADB-Grant |
 | Emergency/Private Mode | Teilweise | Stoppt Overlay bzw. neue Aufzeichnung; verschlüsselt keine vorhandenen Daten |
-| Apps / Files / Browser / Automate / AI | Nur Shell | Karten sind noch nicht klickbare Feature-Implementierungen |
+| Files | Vorhanden | Öffnet echte DocumentProvider-Verzeichnisse per SAF, übernimmt persistierbare URI-Rechte und listet reale Einträge |
+| Browser | Vorhanden | Öffnet HTTP/HTTPS in einer gehärteten WebView ohne JavaScript, DOM Storage oder Datei-/Content-Zugriff |
+| Apps / Automate / AI | Nur Shell | Karten sind noch nicht klickbare Feature-Implementierungen |
 | PWA-Module | Nicht vorhanden | Kein PWA-Repository, Editor oder WebView-Container im aktuellen App-Code |
 | Modul-Registry | Vorhanden | Ein stabiler Vertrag registriert Borderline und fünf geplante Module |
 | Evolver-Patches | Vorhanden | Daten-Patches werden gegen UI-/Action-Allowlist, Revision, Tiefe und Größe validiert |
@@ -122,7 +124,12 @@ werden nur behauptet/simuliert. Der Indexer erzeugt in kleinen Sandboxes sogar
 Mock-Dateien und seine Löschlogik braucht vor einer Übernahme ein separates
 Sicherheitsaudit.
 
-**In AXOLOTL:** **nicht übernommen**. Die Files-Karte ist nur Shell.
+**In AXOLOTL:** Der unsichere Mock-Komplex wurde nicht übernommen. Stattdessen
+ist ein echtes, bewusst kleines Files-Modul aktiv: Nutzer wählen über Androids
+Storage Access Framework einen DocumentProvider-Ordner, AXOLOTL übernimmt die
+persistierbare URI-Freigabe und liest dessen wirkliche Einträge. Suche,
+Versionierung und Index folgen erst, wenn sie auf dieser realen Datenquelle
+implementiert sind.
 
 ### 4. Evolver Engine
 
@@ -187,7 +194,11 @@ vor allem Erfolgsmeldungen; Virtual Drive lebt nur im RAM und ist kein Android
 DocumentsProvider; „Zero RAM modules“ sind normale In-Memory-Objekte. Außerdem
 ist die JavaScript-Injektion sicherheitlich nicht ausreichend isoliert.
 
-**In AXOLOTL:** **nicht übernommen**. Die Browser-Karte ist nur Shell.
+**In AXOLOTL:** Ein echtes Browser-Basismodul ist aktiv. Es lädt ausschließlich
+HTTP/HTTPS und startet mit deaktiviertem JavaScript, DOM Storage sowie Datei-
+und Content-Zugriff. Die vorgetäuschten MCP-, GitHub-, NotebookLM- und
+Virtual-Drive-Funktionen wurden nicht übernommen und werden erst sichtbar,
+wenn reale Backends und Tests existieren.
 
 ## Sollbild versus aktueller Stand
 
@@ -197,9 +208,9 @@ ist die JavaScript-Injektion sicherheitlich nicht ausreichend isoliert.
 | AI-Gateway | BELLOWS Router + Memory | Nicht vorhanden |
 | PWA-Erweiterungen | BELLOWS HTML-Module | Nicht vorhanden |
 | Apps | Cluster, Inspector, Batch-Aktionen | Nur Shell; einfacher Dock-App-Picker vorhanden |
-| Files | Index, Suche, Versionen | Nicht vorhanden |
+| Files | Index, Suche, Versionen | Reales SAF-Browsing vorhanden; Index/Versionen folgen |
 | Vault/Remote Files | Sicherer Vault, SMB/FTP | Auch im Original nur Mock; nicht übernehmen |
-| Browser | WebView-Tabs + sichere Module | Nicht vorhanden |
+| Browser | WebView-Tabs + sichere Module | Gehärtete Single-WebView vorhanden; Tabs/Module folgen |
 | MCP/GitHub/Notebook | reale Integrationen | Im Original überwiegend Mock; nicht vorhanden |
 | Generative UI | Evolver-Schema + Review/Rollback | Sicherer Runtime-Kern vorhanden; Renderer/LLM/Persistenz folgen |
 | Selbstmodifikation | kontrollierte Erweiterbarkeit | Modul-/Datenpatches vorhanden; beliebige Codeausführung ausgeschlossen |

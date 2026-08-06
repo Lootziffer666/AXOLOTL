@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -55,6 +56,9 @@
             android:exported="false"
             android:label="Borderline"
             android:theme="@style/Theme.MyApplication" />
+
+        <activity android:name=".FilesActivity" android:exported="false" android:label="Files" />
+        <activity android:name=".BrowserActivity" android:exported="false" android:label="Browser" />
 
         <activity
             android:name=".MainActivity"

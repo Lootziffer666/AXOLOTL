@@ -27,10 +27,12 @@ Revision, Node-Anzahl/-Tiefe, eindeutige IDs und registrierte Actions und führt
 Snapshots/Rollback. `ModuleActionDispatcher` führt nur Actions aktiver Module
 aus, für die die App explizit einen Handler gebunden hat.
 
-Borderline ist das erste aktive Modul. Die fünf weiteren Bereiche sind als
-`PLANNED` registriert und können deshalb weder Evolver-Patches noch Actions
-ausführen. Ein neues Feature wird künftig durch eine `AxolotlModule`-
-Implementierung eingehängt, statt die App-Shell direkt zu verändern.
+Borderline, Files und Browser sind aktive Module. Files liest reale
+DocumentProvider-Verzeichnisse über SAF; Browser stellt eine minimal gehärtete
+HTTP/HTTPS-WebView bereit. Apps, Automate und AI & Models sind als `PLANNED`
+registriert und können deshalb weder Evolver-Patches noch Actions ausführen. Ein
+neues Feature wird künftig durch eine `AxolotlModule`-Implementierung eingehängt,
+statt die App-Shell direkt zu verändern.
 
 ```text
 :app                    App-Shell, Navigation, Deep Links, Onboarding

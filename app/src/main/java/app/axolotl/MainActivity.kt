@@ -61,11 +61,20 @@ class MainActivity : ComponentActivity() {
                         bind("borderline.open") {
                             startActivity(Intent(this@MainActivity, BorderlineActivity::class.java))
                         }
+                        bind("files.open") {
+                            startActivity(Intent(this@MainActivity, FilesActivity::class.java))
+                        }
+                        bind("browser.open") {
+                            startActivity(Intent(this@MainActivity, BrowserActivity::class.java))
+                        }
                     }
                 }
-                AxolotlFrame {
-                    dispatcher.dispatch("borderline", "borderline.open")
-                }
+                AxolotlFrame(
+                    onOpenBorderline = { dispatcher.dispatch("borderline", "borderline.open") },
+                    onOpenModule = { module ->
+                        module.actions.firstOrNull()?.let { dispatcher.dispatch(module.manifest.id, it.id) }
+                    },
+                )
             }
         }
     }
@@ -74,7 +83,10 @@ class MainActivity : ComponentActivity() {
 internal val coreModuleRegistry = createCoreModuleRegistry()
 
 @Composable
-internal fun AxolotlFrame(onOpenBorderline: () -> Unit) {
+internal fun AxolotlFrame(
+    onOpenBorderline: () -> Unit,
+    onOpenModule: (AxolotlModule) -> Unit = {},
+) {
     val background = Brush.verticalGradient(
         listOf(Color(0xFF0F0E17), Color(0xFF1E1B2E), Color(0xFF12111C)),
     )
@@ -99,7 +111,7 @@ internal fun AxolotlFrame(onOpenBorderline: () -> Unit) {
             items(
                 coreModuleRegistry.all().filterNot { it.manifest.id == "borderline" },
                 key = { it.manifest.id },
-            ) { WorkspaceCard(it) }
+            ) { WorkspaceCard(it, onOpenModule) }
         }
     }
 }
@@ -146,9 +158,14 @@ private fun BorderlineCard(onClick: () -> Unit) {
 }
 
 @Composable
-private fun WorkspaceCard(module: AxolotlModule) {
+private fun WorkspaceCard(module: AxolotlModule, onOpen: (AxolotlModule) -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                enabled = module.availability == ModuleAvailability.AVAILABLE,
+                onClick = { onOpen(module) },
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF242132)),
     ) {

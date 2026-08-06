@@ -10,8 +10,8 @@ class EvolverEngineTest {
     private val engine = EvolverEngine(registry)
 
     @Test
-    fun `core registry exposes one available module and five planned modules`() {
-        assertEquals(listOf("borderline"), registry.available().map { it.manifest.id })
+    fun `core registry exposes implemented and planned modules truthfully`() {
+        assertEquals(listOf("borderline", "files", "browser"), registry.available().map { it.manifest.id })
         assertEquals(6, registry.all().size)
     }
 
@@ -45,7 +45,7 @@ class EvolverEngineTest {
             ),
         )
         val plannedModule = engine.propose(
-            EvolutionPatch("files", 0, "Premature patch", listOf(UiNode.Heading("h", "Files"))),
+            EvolutionPatch("automate", 0, "Premature patch", listOf(UiNode.Heading("h", "Automate"))),
         )
 
         assertTrue(unknownAction is EvolutionResult.Rejected)
@@ -66,7 +66,7 @@ class EvolverEngineTest {
 
         assertEquals(ActionDispatchResult.Executed, dispatcher.dispatch("borderline", "borderline.open"))
         assertTrue(dispatcher.dispatch("borderline", "system.shell") is ActionDispatchResult.Rejected)
-        assertTrue(dispatcher.dispatch("files", "borderline.open") is ActionDispatchResult.Rejected)
+        assertTrue(dispatcher.dispatch("automate", "borderline.open") is ActionDispatchResult.Rejected)
         assertEquals(1, calls)
     }
 }
