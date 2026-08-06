@@ -2,6 +2,7 @@ package app.axolotl.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -108,10 +109,10 @@ class SettingsManager private constructor(context: Context) {
         )
     }
 
-    fun reportClipboardBlocked() {
+    fun reportClipboardBlocked(cause: Throwable) {
         _clipboardCaptureStatus.value = ClipboardCaptureStatus(
             ClipboardCaptureState.BLOCKED,
-            "Clipboard access was blocked by Android"
+            ClipboardFailureDiagnostics.describe(cause, Build.VERSION.SDK_INT, Build.MANUFACTURER)
         )
     }
 

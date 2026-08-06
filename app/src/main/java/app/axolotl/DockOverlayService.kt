@@ -205,8 +205,8 @@ class DockOverlayService : Service() {
                         }
                     }
                 }
-            } catch (_: Exception) {
-                settingsManager.reportClipboardBlocked()
+            } catch (error: Exception) {
+                settingsManager.reportClipboardBlocked(error)
             }
         }
         clipboard.addPrimaryClipChangedListener(clipboardListener)
@@ -844,8 +844,8 @@ fun QuickActionsAndCaptureTab(
             }
         }
 
-        // Logcat Inspection Section (READ_LOGS)
-        Text("READ_LOGS Logcat Inspector", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
+        // Android only exposes logs visible to this app; no privileged READ_LOGS access.
+        Text("App Diagnostics", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
 
         var logText by remember { mutableStateOf("") }
         var isReadingLogs by remember { mutableStateOf(false) }

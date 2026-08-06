@@ -26,7 +26,7 @@ noch nicht abschließend berücksichtigt.
 | Appendix | Hängt Clipboard-Texte als Markdown-Liste in SharedPreferences an | `SettingsManager` |
 | Quick Actions | Lokale Regex-Erkennung für URL, E-Mail, IBAN, Telefon, Adresse und Stacktraces | `QuickActionHelper` |
 | Handoffs | Android-Intents für Share, Browser-Suche, Maps sowie AI-App-Chooser | `HandoffHelper` |
-| Logcat | Liest/leert `logcat` nach separat per ADB gewährtem `READ_LOGS` | `LogReaderHelper` |
+| Diagnostik | Liest ausschließlich die von Android für die eigene App freigegebenen Logs | `LogReaderHelper` |
 | Konfiguration | Position, Größe, Opazität, Edge, Privacy-/Emergency-/Appendix-Schalter | `DockSettings`, `BorderlineActivity` |
 | Integration | Custom URI, Broadcast-Receiver und Shortcut-Activity öffnen Overlay-Menüs | `ShortcutActivity`, `BorderlineShortcutReceiver` |
 
@@ -87,6 +87,8 @@ Automate sowie AI & Models und öffnet Borderline als gemeinsamen Rahmen.
 | AI-Studio Release-/Debug-Signing-Konfiguration entfernt | Keine lokalen Keystore-Annahmen oder Klartext-Debug-Credentials im Build |
 | Unbenutzte Firebase-, Retrofit-, OkHttp-, Moshi- und Secrets-Abhängigkeiten entfernt | Hyperdock hatte dafür keinen ausführenden Code; kleinere und ehrlichere Angriffsfläche |
 | Overlay-Service und Broadcast-Receiver nicht exportiert | Andere Apps dürfen keine internen Komponenten direkt starten oder Daten schreiben |
+| `READ_LOGS` und `QUERY_ALL_PACKAGES` entfernt | Nur app-sichtbare Logs sowie gezielte Launcher-/Modul-Abfragen statt privilegierter Sichtbarkeit |
+| Externe `borderline://open`-Links bestätigt | Browser und Fremd-Apps dürfen das Overlay nicht mehr ohne Nutzerfreigabe öffnen |
 | Schreibende `borderline://add-snippet`-/`appendix`-Deep-Links entfernt | Beliebige Webseiten/Apps hätten sonst unbestätigt lokale Inhalte verändern können |
 | AI-Studio-Metadaten, generisches README, `.aistudio`, `.env` und Signing-Artefakte nicht in die App kopiert | Generierter Ballast und Secret-Risiko |
 | Screenshot-/App-Namens-Tests auf AXOLOTL angepasst | Alte Tests referenzierten eine nicht vorhandene `Greeting`-Composable bzw. „My Application“ |
@@ -99,13 +101,13 @@ dokumentiert; das Archiv ist nicht Teil des Repositorys oder Android-Builds.
 ### P0 – vor Verteilung
 
 1. Room beziehungsweise aktivierte Clipboard-History verschlüsseln.
-2. `READ_LOGS` und `QUERY_ALL_PACKAGES` auf Produktnotwendigkeit/Play-Policy
-   prüfen; wenn möglich durch engere APIs ersetzen.
-3. Foreground-Service-Typ, Notification-Permission und Startrestriktionen auf
-   Android 13–15 auf Geräten testen.
-4. Bei jeder künftigen Schemaänderung eine explizite Room-Migration samt
+2. Foreground-Service-Startrestriktionen auf realen Android-13–15-Geräten und
+   relevanten Hersteller-ROMs testen; Manifest-/Notification-Verträge sind per
+   Robolectric abgesichert.
+3. Bei jeder künftigen Schemaänderung eine explizite Room-Migration samt
    Migrationstest gegen die versionierten Schemas schreiben.
-5. Deep Links mit Android App Links oder bestätigender UI absichern.
+4. Falls künftig HTTPS-Deep-Links hinzukommen, Android App Links mit verifizierter
+   Domain verwenden; der bestehende Custom-Scheme-Link verlangt Bestätigung.
 
 ### P1 – bevor weitere Features andocken
 

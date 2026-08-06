@@ -910,7 +910,6 @@ fun LogcatReaderTab(settingsManager: SettingsViewModel) {
     val context = LocalContext.current
     var tagFilter by remember { mutableStateOf("") }
     var logsText by remember { mutableStateOf("") }
-    var isGranted by remember { mutableStateOf(app.axolotl.utils.LogReaderHelper.hasReadLogsPermission(context)) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -920,35 +919,9 @@ fun LogcatReaderTab(settingsManager: SettingsViewModel) {
         item {
             GlassCard {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("READ_LOGS Permission & ADB Status", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
+                    Text("App-only diagnostics", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
                     Spacer(Modifier.height(4.dp))
-                    Text("On Android, READ_LOGS requires a 1-time grant via ADB command:", style = MaterialTheme.typography.bodySmall, color = Color(0xFFA1A1AA))
-                    Spacer(Modifier.height(8.dp))
-
-                    val adbCmd = "adb shell pm grant ${context.packageName} android.permission.READ_LOGS"
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF0F0E17), RoundedCornerShape(12.dp))
-                            .padding(12.dp)
-                    ) {
-                        Text(adbCmd, fontSize = 11.sp, color = Color(0xFFC084FC), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                    }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                        Button(
-                            onClick = {
-                                HandoffHelper.copyToClipboard(context, "ADB Command", adbCmd)
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA855F7))
-                        ) {
-                            Icon(Icons.Filled.ContentCopy, contentDescription = "Copy")
-                            Spacer(Modifier.width(6.dp))
-                            Text("Copy ADB Command")
-                        }
-                    }
+                    Text("Shows only log entries Android exposes to AXOLOTL. No privileged READ_LOGS permission or ADB grant is requested.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFA1A1AA))
                 }
             }
         }
@@ -956,7 +929,7 @@ fun LogcatReaderTab(settingsManager: SettingsViewModel) {
         item {
             GlassCard {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Live Logcat Inspector", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
+                    Text("App Log Inspector", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
                     Spacer(Modifier.height(8.dp))
 
                     OutlinedTextField(
