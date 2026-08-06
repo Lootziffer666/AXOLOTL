@@ -17,6 +17,30 @@ als Automations- und UI-Laufzeit aufgehoben als als zweite App-Shell.
 
 ## 2. Zielarchitektur
 
+### Bereits implementierter Modul-Kern
+
+`app.axolotl.evolver` bildet inzwischen die verbindliche Integrationsgrenze:
+`AxolotlModule` veröffentlicht Manifest, Fähigkeiten, Status, Aktionen und eine
+deklarative Startoberfläche. `ModuleRegistry` verhindert ungültige und doppelte
+Module. `EvolverEngine` nimmt ausschließlich `EvolutionPatch`-Daten an, prüft
+Revision, Node-Anzahl/-Tiefe, eindeutige IDs und registrierte Actions und führt
+Snapshots/Rollback. `ModuleActionDispatcher` führt nur Actions aktiver Module
+aus, für die die App explizit einen Handler gebunden hat.
+
+Alle sechs Bereiche sind jetzt aktive Module. Apps liest reale
+Launcher-Aktivitäten; Files navigiert DocumentProvider-Verzeichnisse über SAF;
+Browser stellt eine minimal gehärtete HTTP/HTTPS-WebView bereit; AI & Models
+sendet echte OpenAI-kompatible Requests über eine getrennte `AiGateway`-Grenze.
+Automate stellt den manuellen, validierten Apply-/Rollback-Pfad für deklarative
+Moduloberflächen bereit. Ein neues Feature wird künftig durch eine
+`AxolotlModule`-Implementierung eingehängt, statt die App-Shell direkt zu ändern.
+
+Die Shell setzt dabei nur Borderline voraus. `InstalledModuleDiscovery` findet
+alle weiteren Activities über `app.axolotl.action.MODULE` und Manifest-Metadaten
+und hält lediglich deren explizite `ComponentName`. Dadurch referenziert die
+Shell keine optionale Feature-Klasse: Entfernen, Kopieren oder die Installation
+als separates APK verändert nur das Discovery-Ergebnis beim nächsten Start.
+
 ```text
 :app                    App-Shell, Navigation, Deep Links, Onboarding
 ├── :core:model         gemeinsame IDs, Resultate und Domain-Events

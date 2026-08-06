@@ -6,10 +6,13 @@ Ein sichtbarer Button oder Dialog gilt hier **nicht** automatisch als Funktion.
 
 ## Direkte Antwort
 
-**AXOLOTL ist derzeit keine sich selbst erweiternde App und lädt derzeit keine
-PWA-Module.** Es ist aktuell eine Android-App-Shell mit dem migrierten
-Borderline-Funktionskern. Die fünf Karten Apps, Files, Browser, Automate und
-AI & Models sind nur Roadmap-Einstiege (`NEXT`) und öffnen noch keine Features.
+**AXOLOTL lädt weiterhin keine PWA- oder Fremdcode-Module.** Es besitzt jetzt
+aber den kontrollierten Evolver-Kern, über den App-Teile registriert und
+declarative UI-Patches validiert, versioniert und zurückgerollt werden. Aktuell
+sind alle sechs registrierten Bereiche aktiv: Borderline, Apps, Files, Browser,
+AI & Models und Automate. Nur Borderline ist zwingender Kern; die übrigen fünf
+werden über Android-Manifest-Metadaten entdeckt und sind einzeln entfernbar oder
+als separates APK installierbar.
 
 Zwei Originalprototypen enthielten Konzepte, die später eine kontrollierte
 Erweiterbarkeit liefern könnten:
@@ -17,17 +20,17 @@ Erweiterbarkeit liefern könnten:
 1. **BELLOWS** speichert HTML-PWA-Module in Room und zeigt sie in einer WebView.
    Das erweitert Web-Inhalte, nicht den nativen Android-Code. Dieses System ist
    noch nicht in AXOLOTL übernommen.
-2. **Evolver Engine** lässt ein LLM ein begrenztes JSON-UI-Schema erzeugen,
-   rendert erlaubte Komponenten und speichert Snapshots/Rollbacks. Auch dieses
-   System ist noch nicht übernommen. Es lädt oder kompiliert keinen beliebigen
-   Kotlin-Code und ist daher eher „generative UI“ als echte Selbstmodifikation.
+2. **Evolver Engine** lieferte die Idee eines begrenzten UI-Schemas. AXOLOTL hat
+   davon jetzt einen neu geschriebenen, LLM-unabhängigen Sicherheitskern:
+   Modulvertrag, Registry, geschlossene `UiNode`-Allowlist, Action-Allowlist,
+   Revisionsprüfung, Snapshots und Rollback. Beliebiger Kotlin-/Web-Code bleibt
+   ausdrücklich ausgeschlossen.
 
 ## Legende
 
 - **Vorhanden:** ausführender Code ist in AXOLOTL enthalten.
 - **Teilweise:** Code existiert, hat aber relevante Plattform- oder
   Produktlücken.
-- **Nur Shell:** sichtbarer AXOLOTL-Einstieg ohne migrierte Funktion.
 - **Nicht übernommen:** nur im Original-ZIP vorhanden.
 - **Mock im Original:** schon im Gemini-Prototyp nur In-Memory-Demo, Dialog oder
   Statusumschalter ohne behauptetes Backend.
@@ -47,9 +50,16 @@ Erweiterbarkeit liefern könnten:
 | Handoffs | Vorhanden | Share, Websuche, Maps und „Send to AI“ über Android-App-Chooser |
 | Logcat Inspector | Teilweise | Funktioniert nur mit privilegiertem `READ_LOGS`-ADB-Grant |
 | Emergency/Private Mode | Teilweise | Stoppt Overlay bzw. neue Aufzeichnung; verschlüsselt keine vorhandenen Daten |
-| Apps / Files / Browser / Automate / AI | Nur Shell | Karten sind noch nicht klickbare Feature-Implementierungen |
+| Apps | Vorhanden | Liest reale Launcher-Apps, filtert nach Label/Package, startet Apps und öffnet Android-Appdetails |
+| Files | Vorhanden | Navigiert echte DocumentProvider-Verzeichnisse per SAF, behält URI-Rechte und öffnet Dateien über Android |
+| Browser | Vorhanden | Öffnet HTTP/HTTPS in einer gehärteten WebView ohne JavaScript, DOM Storage oder Datei-/Content-Zugriff |
+| AI & Models | Vorhanden | Sendet echte OpenAI-kompatible Chat-Completion-Requests an validierte HTTPS-Endpunkte; Token bleibt im Speicher |
+| Automate | Vorhanden | Wählt aktive Module, validiert manuelle deklarative Patches, versioniert sie und rollt sie zurück |
 | PWA-Module | Nicht vorhanden | Kein PWA-Repository, Editor oder WebView-Container im aktuellen App-Code |
-| Selbst-Erweiterung | Nicht vorhanden | Kein Evolver-Schema, LLM-Patchprozess oder Plugin-Lader im aktuellen App-Code |
+| Modul-Discovery | Vorhanden | PackageManager entdeckt optionale Modul-Activities aus demselben oder separaten APKs |
+| Evolver-Patches | Vorhanden | Daten-Patches werden gegen UI-/Action-Allowlist, Revision, Tiefe und Größe validiert |
+| Rollback | Teilweise | Prozessweite In-Memory-Snapshots funktionieren; persistente Room-Snapshots folgen |
+| Selbst-Erweiterung | Kontrolliert vorbereitet | Module und UI-Daten sind erweiterbar; kein Fremdcode- oder PWA-Lader |
 
 ## Vergleich mit den sechs Originalprototypen
 
@@ -72,7 +82,11 @@ mehrere UI-Aktionen sind TODO; Secrets/SSRF/Origin-Isolation und belastbare
 Serverauthentifizierung sind nicht produktionsreif. PWA-Module sind HTML in
 einer WebView, keine installierbaren nativen Feature-Module.
 
-**In AXOLOTL:** **nicht übernommen**. Die Karte „AI & Models“ ist nur Shell.
+**In AXOLOTL:** Ein echtes, schmales `AiGateway` ist aktiv. Es sendet
+OpenAI-kompatible Chat-Completion-Requests, trennt Transport von UI, erlaubt nur
+HTTPS-Endpoints auf `chat/completions`, setzt Timeouts und persistiert den Token
+nicht. Provider-Routing, Memory, lokaler Server und PWA-Container folgen als
+separate, testbare Ausbaustufen und werden noch nicht behauptet.
 
 ### 2. App Cluster AI
 
@@ -93,8 +107,11 @@ Design inspizieren und Apps gesammelt verwalten/deinstallieren.
 kopierbare Shell-Kommandos; Designanalyse basiert überwiegend auf erfassten
 Metadaten/UI; API-Key- und Modellkonfiguration sind Prototype-Code.
 
-**In AXOLOTL:** **nicht übernommen**. Die Apps-Karte ist nur Shell; lediglich
-Borderline besitzt bereits eine einfachere Launcher-App-Liste.
+**In AXOLOTL:** Ein echtes Apps-Basismodul ist aktiv. Es inventarisiert die vom
+PackageManager gemeldeten Launcher-Apps, sucht nach Label oder Package, startet
+Apps und öffnet bei langem Druck die echten Android-Appdetails. Gemini-Cluster,
+Designanalyse und privilegierte Batch-Deinstallation werden nicht behauptet,
+solange ihre sichere Implementierung fehlt.
 
 ### 3. Everything Files
 
@@ -117,7 +134,12 @@ werden nur behauptet/simuliert. Der Indexer erzeugt in kleinen Sandboxes sogar
 Mock-Dateien und seine Löschlogik braucht vor einer Übernahme ein separates
 Sicherheitsaudit.
 
-**In AXOLOTL:** **nicht übernommen**. Die Files-Karte ist nur Shell.
+**In AXOLOTL:** Der unsichere Mock-Komplex wurde nicht übernommen. Stattdessen
+ist ein echtes, bewusst kleines Files-Modul aktiv: Nutzer wählen über Androids
+Storage Access Framework einen DocumentProvider-Ordner, AXOLOTL übernimmt die
+persistierbare URI-Freigabe und liest dessen wirkliche Einträge. Suche,
+Versionierung und Index folgen erst, wenn sie auf dieser realen Datenquelle
+implementiert sind.
 
 ### 4. Evolver Engine
 
@@ -138,8 +160,14 @@ Integrität ist kein kryptographischer Code-Nachweis; API-Keys werden in der
 lokalen DB gespeichert; Schema-Validierung und Aktionsfreigaben sind zu schwach
 für privilegierte Funktionen. Es modifiziert keinen nativen App-Code.
 
-**In AXOLOTL:** **nicht übernommen**. Die Automate-Karte ist nur Shell. AXOLOTL
-ist deshalb aktuell ausdrücklich **nicht selbst-erweiternd**.
+**In AXOLOTL:** Das ursprüngliche Netzwerk-/Repository-System ist nicht
+übernommen. Stattdessen ist sein sicheres Prinzip neu implementiert: Module
+melden Manifest, Fähigkeiten und erlaubte Aktionen an; Evolver akzeptiert nur
+deklarative Allowlist-Knoten und kann Revisionen zurückrollen. Das aktive
+Automate-Modul bietet dafür jetzt eine reale Review-Oberfläche: Zielmodul
+wählen, Heading/Paragraph als Datenpatch prüfen und anwenden oder den letzten
+Patch zurückrollen. Ein LLM-Adapter und persistente Snapshots sind bewusst noch
+nicht angeschlossen.
 
 ### 5. Borderline / Hyperdock
 
@@ -179,22 +207,26 @@ vor allem Erfolgsmeldungen; Virtual Drive lebt nur im RAM und ist kein Android
 DocumentsProvider; „Zero RAM modules“ sind normale In-Memory-Objekte. Außerdem
 ist die JavaScript-Injektion sicherheitlich nicht ausreichend isoliert.
 
-**In AXOLOTL:** **nicht übernommen**. Die Browser-Karte ist nur Shell.
+**In AXOLOTL:** Ein echtes Browser-Basismodul ist aktiv. Es lädt ausschließlich
+HTTP/HTTPS und startet mit deaktiviertem JavaScript, DOM Storage sowie Datei-
+und Content-Zugriff. Die vorgetäuschten MCP-, GitHub-, NotebookLM- und
+Virtual-Drive-Funktionen wurden nicht übernommen und werden erst sichtbar,
+wenn reale Backends und Tests existieren.
 
 ## Sollbild versus aktueller Stand
 
 | Produktbereich | Soll aus den Prototypen | Heute in AXOLOTL |
 | --- | --- | --- |
 | Gemeinsamer Rahmen | Borderline überall verfügbar | Grundkern vorhanden |
-| AI-Gateway | BELLOWS Router + Memory | Nicht vorhanden |
+| AI-Gateway | BELLOWS Router + Memory | Echter OpenAI-kompatibler HTTPS-Client vorhanden; Routing/Memory folgen |
 | PWA-Erweiterungen | BELLOWS HTML-Module | Nicht vorhanden |
-| Apps | Cluster, Inspector, Batch-Aktionen | Nur Shell; einfacher Dock-App-Picker vorhanden |
-| Files | Index, Suche, Versionen | Nicht vorhanden |
+| Apps | Cluster, Inspector, Batch-Aktionen | Reales Inventar/Suche/Öffnen vorhanden; Cluster/Batch folgen |
+| Files | Index, Suche, Versionen | Reale SAF-Navigation/Dateiöffnung vorhanden; Index/Versionen folgen |
 | Vault/Remote Files | Sicherer Vault, SMB/FTP | Auch im Original nur Mock; nicht übernehmen |
-| Browser | WebView-Tabs + sichere Module | Nicht vorhanden |
+| Browser | WebView-Tabs + sichere Module | Gehärtete Single-WebView vorhanden; Tabs/Module folgen |
 | MCP/GitHub/Notebook | reale Integrationen | Im Original überwiegend Mock; nicht vorhanden |
-| Generative UI | Evolver-Schema + Review/Rollback | Nicht vorhanden |
-| Selbstmodifikation | kontrollierte Erweiterbarkeit | Nicht vorhanden und nicht als beliebige Codeausführung vorgesehen |
+| Generative UI | Evolver-Schema + Review/Rollback | Manueller Review-/Apply-/Rollback-Pfad vorhanden; Renderer/LLM/Persistenz folgen |
+| Selbstmodifikation | kontrollierte Erweiterbarkeit | Modul-/Datenpatches vorhanden; beliebige Codeausführung ausgeschlossen |
 
 ## Nächster sinnvoller Integrationsschritt
 

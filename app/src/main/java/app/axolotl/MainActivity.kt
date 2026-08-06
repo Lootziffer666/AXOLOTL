@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -42,39 +43,52 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.axolotl.evolver.AxolotlModule
+import app.axolotl.evolver.ModuleActionDispatcher
+import app.axolotl.evolver.ModuleAvailability
+import app.axolotl.evolver.ModuleIcon
+import app.axolotl.modules.AxolotlRuntime
+import app.axolotl.modules.createCoreModuleRegistry
 import app.axolotl.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        AxolotlRuntime.initialize(applicationContext)
+        val moduleRegistry = AxolotlRuntime.registry
         setContent {
             MyApplicationTheme(darkTheme = true) {
-                AxolotlFrame {
-                    startActivity(Intent(this, BorderlineActivity::class.java))
+                val dispatcher = remember {
+                    ModuleActionDispatcher(moduleRegistry).apply {
+                        bind("borderline.open") {
+                            startActivity(Intent(this@MainActivity, BorderlineActivity::class.java))
+                        }
+                        moduleRegistry.all().filterNot { it.manifest.id == "borderline" }.forEach { module ->
+                            bind("${module.manifest.id}.open") {
+                                AxolotlRuntime.open(this@MainActivity, module.manifest.id)
+                            }
+                        }
+                    }
                 }
+                AxolotlFrame(
+                    onOpenBorderline = { dispatcher.dispatch("borderline", "borderline.open") },
+                    modules = moduleRegistry.all(),
+                    onOpenModule = { module ->
+                        module.actions.firstOrNull()?.let { dispatcher.dispatch(module.manifest.id, it.id) }
+                    },
+                )
             }
         }
     }
 }
 
-internal data class WorkspaceFeature(
-    val title: String,
-    val subtitle: String,
-    val icon: ImageVector,
-    val available: Boolean = false,
-)
-
-internal val workspaceFeatures = listOf(
-    WorkspaceFeature("Apps", "Cluster, inspect and manage installed apps", Icons.Default.Apps),
-    WorkspaceFeature("Files", "Search, versions, vault and network storage", Icons.Default.Description),
-    WorkspaceFeature("Browser", "Modules, MCP, notebook and GitHub", Icons.Default.Language),
-    WorkspaceFeature("Automate", "Evolver workflows, snapshots and logs", Icons.Default.AutoAwesome),
-    WorkspaceFeature("AI & Models", "BELLOWS routing, memory and providers", Icons.Default.Memory),
-)
-
 @Composable
-internal fun AxolotlFrame(onOpenBorderline: () -> Unit) {
+internal fun AxolotlFrame(
+    onOpenBorderline: () -> Unit,
+    modules: List<AxolotlModule> = createCoreModuleRegistry().all(),
+    onOpenModule: (AxolotlModule) -> Unit = {},
+) {
     val background = Brush.verticalGradient(
         listOf(Color(0xFF0F0E17), Color(0xFF1E1B2E), Color(0xFF12111C)),
     )
@@ -96,7 +110,10 @@ internal fun AxolotlFrame(onOpenBorderline: () -> Unit) {
                     letterSpacing = 1.4.sp,
                 )
             }
-            items(workspaceFeatures, key = { it.title }) { WorkspaceCard(it) }
+            items(
+                modules.filterNot { it.manifest.id == "borderline" },
+                key = { it.manifest.id },
+            ) { WorkspaceCard(it, onOpenModule) }
         }
     }
 }
@@ -143,9 +160,14 @@ private fun BorderlineCard(onClick: () -> Unit) {
 }
 
 @Composable
-private fun WorkspaceCard(feature: WorkspaceFeature) {
+private fun WorkspaceCard(module: AxolotlModule, onOpen: (AxolotlModule) -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                enabled = module.availability == ModuleAvailability.AVAILABLE,
+                onClick = { onOpen(module) },
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF242132)),
     ) {
@@ -154,18 +176,27 @@ private fun WorkspaceCard(feature: WorkspaceFeature) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFF3B3152)) {
-                Icon(feature.icon, null, tint = Color(0xFFC084FC), modifier = Modifier.padding(12.dp))
+                Icon(module.manifest.icon.imageVector(), null, tint = Color(0xFFC084FC), modifier = Modifier.padding(12.dp))
             }
             Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
-                Text(feature.title, color = Color.White, fontWeight = FontWeight.Bold)
-                Text(feature.subtitle, color = Color(0xFFA1A1AA), fontSize = 12.sp)
+                Text(module.manifest.title, color = Color.White, fontWeight = FontWeight.Bold)
+                Text(module.manifest.description, color = Color(0xFFA1A1AA), fontSize = 12.sp)
             }
             Text(
-                if (feature.available) "OPEN" else "NEXT",
-                color = if (feature.available) Color(0xFFC084FC) else Color(0xFF71717A),
+                if (module.availability == ModuleAvailability.AVAILABLE) "OPEN" else "NEXT",
+                color = if (module.availability == ModuleAvailability.AVAILABLE) Color(0xFFC084FC) else Color(0xFF71717A),
                 fontWeight = FontWeight.Bold,
                 fontSize = 10.sp,
             )
         }
     }
+}
+
+private fun ModuleIcon.imageVector(): ImageVector = when (this) {
+    ModuleIcon.BORDERLINE -> Icons.Default.SpaceDashboard
+    ModuleIcon.APPS -> Icons.Default.Apps
+    ModuleIcon.FILES -> Icons.Default.Description
+    ModuleIcon.BROWSER -> Icons.Default.Language
+    ModuleIcon.AUTOMATE -> Icons.Default.AutoAwesome
+    ModuleIcon.AI -> Icons.Default.Memory
 }

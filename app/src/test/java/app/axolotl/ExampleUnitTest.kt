@@ -2,6 +2,7 @@ package app.axolotl
 
 import org.junit.Assert.*
 import org.junit.Test
+import app.axolotl.modules.createCoreModuleRegistry
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -10,11 +11,7 @@ import org.junit.Test
  */
 class WorkspaceRegistryTest {
   @Test
-  fun `all migration targets are represented once`() {
-    assertEquals(
-      listOf("Apps", "Files", "Browser", "Automate", "AI & Models"),
-      workspaceFeatures.map { it.title },
-    )
-    assertEquals(workspaceFeatures.size, workspaceFeatures.distinctBy { it.title }.size)
+  fun `base app requires only the Borderline frame`() {
+    assertEquals(listOf("borderline"), createCoreModuleRegistry().all().map { it.manifest.id })
   }
 }

@@ -31,6 +31,12 @@ Das Android-Projekt liegt in `app/`; die AXOLOTL-Startseite öffnet das bestehen
 Borderline Control Center und zeigt die nächsten zu migrierenden Workspaces.
 Eine genaue Trennung zwischen dem von Gemini erzeugten Funktionsumfang, den
 übernommenen Teilen und den offenen Risiken steht in [`docs/AUDIT.md`](docs/AUDIT.md).
+Der neue Evolver-Kern registriert diese Workspaces über stabile Modulverträge
+und akzeptiert ausschließlich validierte, deklarative UI-Patches – niemals
+beliebigen Kotlin-, HTML- oder JavaScript-Code.
+Bis auf Borderline sind alle Bereiche optional: Die Shell entdeckt ihre
+Activities über einen Manifest-Vertrag, sodass sie gebündelt, kopiert oder als
+eigenes APK installiert werden können. Details: [`docs/MODULES.md`](docs/MODULES.md).
 
 ```bash
 gradle testDebugUnitTest
