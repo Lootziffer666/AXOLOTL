@@ -95,4 +95,20 @@ class ClipRetentionTest {
         assertEquals(1, retained.size)
         assertEquals(true, retained.single().isPinned)
     }
+
+    @Test
+    fun expiredUnpinnedClipsAreDeletedButPinnedClipsRemain() = runTest {
+        val dao = database.clipDao()
+        dao.insertClip(ClipEntity(content = "expired", timestamp = 10, isPinned = false))
+        dao.insertClip(ClipEntity(content = "pinned", timestamp = 10, isPinned = true))
+
+        dao.insertDeduplicatedAndTrim(
+            ClipEntity(content = "current", timestamp = 100),
+            limit = 50,
+            cutoffTimestamp = 50
+        )
+
+        val retained = dao.getAllClips().first()
+        assertEquals(listOf("pinned", "current"), retained.map { it.content })
+    }
 }

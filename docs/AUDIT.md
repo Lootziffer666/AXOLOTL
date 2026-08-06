@@ -46,14 +46,16 @@ noch nicht abschließend berücksichtigt.
 - **Private Mode ist kein Vault:** Er stoppt neue Clipboard-Aufnahmen, schützt
   aber bereits gespeicherte Clips/Snippets weder durch Verschlüsselung noch
   durch Authentifizierung.
-- **Clipboard-Inhalte bleiben unverschlüsselt:** Duplikate werden inzwischen
-  ersetzt, Einträge auf 100.000 Zeichen begrenzt und ältere, nicht angeheftete
-  Einträge nach 50 Datensätzen wirklich gelöscht. Für sensible Inhalte fehlen
-  aber weiterhin Verschlüsselung und eine zeitbasierte Retention.
+- **Clipboard-Inhalte bleiben unverschlüsselt:** Die Aufzeichnung ist inzwischen
+  standardmäßig aus und erfordert ein explizites Opt-in. Duplikate werden
+  ersetzt, Einträge auf 100.000 Zeichen begrenzt und nicht angeheftete Einträge
+  nach 30 Tagen oder oberhalb von 50 Datensätzen gelöscht. Für aktivierte
+  Historien fehlt aber weiterhin Verschlüsselung.
 - **IBAN wird nicht validiert:** Der Text „Validated IBAN“ basiert nur auf einem
   Regex-Match; eine Mod-97-Prüfung fehlt.
-- **Fehler werden verschluckt:** Einschränkungen des Background-Clipboard werden
-  pauschal gefangen, ohne Status für Nutzer oder Diagnose.
+- **Clipboard-Diagnose bleibt grob:** Einschränkungen des Background-Clipboard
+  werden nun im Control Center angezeigt, aber noch nicht nach genauer
+  Android-Ursache oder Herstellerverhalten aufgeschlüsselt.
 - **Historische Migrationen nicht rekonstruierbar:** Der destruktive Fallback
   wurde entfernt und Schema 2 als versionierte Ausgangsbasis exportiert. Der
   Originalexport enthielt ebenfalls nur Version 2; deshalb wird keine
@@ -96,8 +98,7 @@ dokumentiert; das Archiv ist nicht Teil des Repositorys oder Android-Builds.
 
 ### P0 – vor Verteilung
 
-1. Room verschlüsseln oder Clipboard-History standardmäßig deaktivieren; klare
-   Retention und echtes Löschen ergänzen.
+1. Room beziehungsweise aktivierte Clipboard-History verschlüsseln.
 2. `READ_LOGS` und `QUERY_ALL_PACKAGES` auf Produktnotwendigkeit/Play-Policy
    prüfen; wenn möglich durch engere APIs ersetzen.
 3. Foreground-Service-Typ, Notification-Permission und Startrestriktionen auf

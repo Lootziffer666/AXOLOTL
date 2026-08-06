@@ -31,12 +31,20 @@ interface ClipDao {
     )
     suspend fun trimUnpinnedClips(limit: Int)
 
+    @Query("DELETE FROM clips WHERE isPinned = 0 AND timestamp < :cutoffTimestamp")
+    suspend fun deleteExpiredUnpinnedClips(cutoffTimestamp: Long)
+
     @Transaction
-    suspend fun insertDeduplicatedAndTrim(clip: ClipEntity, limit: Int) {
+    suspend fun insertDeduplicatedAndTrim(
+        clip: ClipEntity,
+        limit: Int,
+        cutoffTimestamp: Long = Long.MIN_VALUE
+    ) {
         deleteUnpinnedDuplicates(clip.content)
         if (clip.isPinned || countPinnedClips(clip.content) == 0) {
             insertClip(clip)
         }
+        deleteExpiredUnpinnedClips(cutoffTimestamp)
         trimUnpinnedClips(limit)
     }
 

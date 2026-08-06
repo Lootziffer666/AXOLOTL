@@ -26,10 +26,20 @@ data class DockSettings(
     val buttonY: Int = 200,
     val appendixMode: Boolean = false,
     val appendixDraft: String = "",
+    val clipboardHistoryEnabled: Boolean = false,
     val privateMode: Boolean = false,
     val emergencyOff: Boolean = false,
     val sensitiveAppMode: Boolean = true,
     val captureDraft: String = ""
+)
+
+enum class ClipboardCaptureState {
+    IDLE, CAPTURED, BLOCKED, FAILED
+}
+
+data class ClipboardCaptureStatus(
+    val state: ClipboardCaptureState = ClipboardCaptureState.IDLE,
+    val message: String = "Clipboard history is off"
 )
 
 class SettingsManager private constructor(context: Context) {
@@ -37,6 +47,9 @@ class SettingsManager private constructor(context: Context) {
 
     private val _settings = MutableStateFlow(loadSettings())
     val settings: StateFlow<DockSettings> = _settings.asStateFlow()
+    private val _clipboardCaptureStatus = MutableStateFlow(ClipboardCaptureStatus())
+    val clipboardCaptureStatus: StateFlow<ClipboardCaptureStatus> =
+        _clipboardCaptureStatus.asStateFlow()
 
     private fun loadSettings(): DockSettings {
         return DockSettings(
@@ -51,6 +64,7 @@ class SettingsManager private constructor(context: Context) {
             buttonY = prefs.getInt("buttonY", 200),
             appendixMode = prefs.getBoolean("appendixMode", false),
             appendixDraft = prefs.getString("appendixDraft", "") ?: "",
+            clipboardHistoryEnabled = prefs.getBoolean("clipboardHistoryEnabled", false),
             privateMode = prefs.getBoolean("privateMode", false),
             emergencyOff = prefs.getBoolean("emergencyOff", false),
             sensitiveAppMode = prefs.getBoolean("sensitiveAppMode", true),
@@ -71,12 +85,41 @@ class SettingsManager private constructor(context: Context) {
             putInt("buttonY", newSettings.buttonY)
             putBoolean("appendixMode", newSettings.appendixMode)
             putString("appendixDraft", newSettings.appendixDraft)
+            putBoolean("clipboardHistoryEnabled", newSettings.clipboardHistoryEnabled)
             putBoolean("privateMode", newSettings.privateMode)
             putBoolean("emergencyOff", newSettings.emergencyOff)
             putBoolean("sensitiveAppMode", newSettings.sensitiveAppMode)
             putString("captureDraft", newSettings.captureDraft)
         }.apply()
         _settings.value = newSettings
+        if (!newSettings.clipboardHistoryEnabled && !newSettings.appendixMode) {
+            _clipboardCaptureStatus.value = ClipboardCaptureStatus()
+        } else if (_clipboardCaptureStatus.value.state == ClipboardCaptureState.IDLE) {
+            _clipboardCaptureStatus.value = ClipboardCaptureStatus(
+                message = "Waiting for clipboard content"
+            )
+        }
+    }
+
+    fun reportClipboardCaptured() {
+        _clipboardCaptureStatus.value = ClipboardCaptureStatus(
+            ClipboardCaptureState.CAPTURED,
+            "Clipboard captured"
+        )
+    }
+
+    fun reportClipboardBlocked() {
+        _clipboardCaptureStatus.value = ClipboardCaptureStatus(
+            ClipboardCaptureState.BLOCKED,
+            "Clipboard access was blocked by Android"
+        )
+    }
+
+    fun reportClipboardCaptureFailed() {
+        _clipboardCaptureStatus.value = ClipboardCaptureStatus(
+            ClipboardCaptureState.FAILED,
+            "Clipboard content could not be saved"
+        )
     }
 
     fun appendToAppendix(text: String) {
