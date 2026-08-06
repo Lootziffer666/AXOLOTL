@@ -46,6 +46,10 @@ gradle testDebugUnitTest
 Für lokale Builds wird JDK 17 empfohlen. Binäre Quellarchive werden nach der
 Migration nicht im Repository aufbewahrt.
 
+Die lokale Room-Datenbank wird mit SQLCipher verschlüsselt. Ihre zufällige
+Passphrase liegt nur Android-Keystore-geschützt auf dem Gerät; Datenbank und
+Key-Material sind deshalb bewusst von Backup und Geräteübertragung ausgeschlossen.
+
 Die ursprünglichen ZIP-Exporte werden für Build und Weiterentwicklung nicht
 mehr benötigt. Für spätere Provenienz- oder Wiederherstellungsprüfungen sollten
 sie außerhalb von Git in einem zugriffsgeschützten, versionierten Archiv

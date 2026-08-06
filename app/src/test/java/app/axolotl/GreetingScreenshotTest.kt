@@ -5,7 +5,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import app.axolotl.data.DockSettings
-import app.axolotl.ui.DockViewModel
 import app.axolotl.ui.SettingsViewModel
 import app.axolotl.ui.theme.MyApplicationTheme
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -41,7 +40,7 @@ class AxolotlFrameScreenshotTest {
         ProvisioningTab(
           settings = DockSettings(),
           settingsViewModel = SettingsViewModel(application),
-          dockViewModel = DockViewModel(application)
+          onClearClipboardHistory = {}
         )
       }
     }

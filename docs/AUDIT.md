@@ -43,14 +43,15 @@ noch nicht abschließend berücksichtigt.
 - **Position und Opazität teilweise wirkungslos:** `positionY`, `barOpacity` und
   `iconOpacity` werden konfiguriert, aber die aktuelle Overlay-Anordnung nutzt
   sie nicht vollständig.
-- **Private Mode ist kein Vault:** Er stoppt neue Clipboard-Aufnahmen, schützt
-  aber bereits gespeicherte Clips/Snippets weder durch Verschlüsselung noch
-  durch Authentifizierung.
-- **Clipboard-Inhalte bleiben unverschlüsselt:** Die Aufzeichnung ist inzwischen
-  standardmäßig aus und erfordert ein explizites Opt-in. Duplikate werden
-  ersetzt, Einträge auf 100.000 Zeichen begrenzt und nicht angeheftete Einträge
-  nach 30 Tagen oder oberhalb von 50 Datensätzen gelöscht. Für aktivierte
-  Historien fehlt aber weiterhin Verschlüsselung.
+- **Private Mode ist keine zusätzliche Authentifizierung:** Er stoppt neue
+  Clipboard-Aufnahmen; die Room-Datei ist inzwischen vollständig mit SQLCipher
+  und einer per Android Keystore geschützten Zufallspassphrase verschlüsselt.
+  Eine separate biometrische Zugriffssperre innerhalb der laufenden App fehlt.
+- **Clipboard-Historie ist opt-in und verschlüsselt:** Duplikate werden ersetzt,
+  Einträge auf 100.000 Zeichen begrenzt und nicht angeheftete Einträge nach
+  30 Tagen oder oberhalb von 50 Datensätzen gelöscht. Bestehende Klartextbanken
+  werden vor dem Öffnen atomar exportiert und erst nach Integritätsprüfung
+  ersetzt.
 - **IBAN wird nicht validiert:** Der Text „Validated IBAN“ basiert nur auf einem
   Regex-Match; eine Mod-97-Prüfung fehlt.
 - **Clipboard-Diagnose bleibt grob:** Einschränkungen des Background-Clipboard
@@ -100,10 +101,11 @@ dokumentiert; das Archiv ist nicht Teil des Repositorys oder Android-Builds.
 
 ### P0 – vor Verteilung
 
-1. Room beziehungsweise aktivierte Clipboard-History verschlüsseln.
-2. Foreground-Service-Startrestriktionen auf realen Android-13–15-Geräten und
+1. Foreground-Service-Startrestriktionen auf realen Android-13–15-Geräten und
    relevanten Hersteller-ROMs testen; Manifest-/Notification-Verträge sind per
    Robolectric abgesichert.
+2. Den nativen Klartext-zu-SQLCipher-Instrumentationstest in der Geräte-CI auf
+   allen unterstützten ABIs ausführen.
 3. Bei jeder künftigen Schemaänderung eine explizite Room-Migration samt
    Migrationstest gegen die versionierten Schemas schreiben.
 4. Falls künftig HTTPS-Deep-Links hinzukommen, Android App Links mit verifizierter

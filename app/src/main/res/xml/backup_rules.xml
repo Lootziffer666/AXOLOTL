@@ -1,13 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
--->
+<?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Keystore keys are device-bound; never back up the encrypted DB without its key. -->
+    <exclude domain="database" path="dock_database" />
+    <exclude domain="database" path="dock_database-wal" />
+    <exclude domain="database" path="dock_database-shm" />
+    <exclude domain="database" path="dock_database.encrypted-new" />
+    <exclude domain="database" path="dock_database.plaintext-backup" />
+    <exclude domain="sharedpref" path="database_key_material.xml" />
 </full-backup-content>

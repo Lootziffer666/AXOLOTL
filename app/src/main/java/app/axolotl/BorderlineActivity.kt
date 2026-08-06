@@ -206,7 +206,7 @@ class BorderlineActivity : ComponentActivity() {
                             0 -> DockSetupTab(appsState, featuresState, settings, hasOverlayPermission, dockViewModel, settingsViewModel)
                             1 -> SnippetsManagerTab(snippetsState, dockViewModel)
                             2 -> ClipboardManagerTab(clipsState, settings, settingsViewModel, dockViewModel)
-                            3 -> ProvisioningTab(settings, settingsViewModel, dockViewModel)
+                            3 -> ProvisioningTab(settings, settingsViewModel, dockViewModel::clearUnpinnedClips)
                             4 -> LogcatReaderTab(settingsManager = settingsViewModel)
                         }
                     }
@@ -692,7 +692,7 @@ fun ClipboardManagerTab(
 fun ProvisioningTab(
     settings: app.axolotl.data.DockSettings,
     settingsViewModel: SettingsViewModel,
-    dockViewModel: DockViewModel
+    onClearClipboardHistory: () -> Unit
 ) {
     val context = LocalContext.current
     val clipboardCaptureStatus by settingsViewModel.clipboardCaptureStatus.collectAsState()
@@ -861,7 +861,7 @@ object BorderlineSDK {
 
                     Button(
                         onClick = {
-                            dockViewModel.clearUnpinnedClips()
+                            onClearClipboardHistory()
                             settingsViewModel.updateSettings(settings.copy(appendixDraft = ""))
                             Toast.makeText(context, "Clipboard history cleared!", Toast.LENGTH_SHORT).show()
                         },
