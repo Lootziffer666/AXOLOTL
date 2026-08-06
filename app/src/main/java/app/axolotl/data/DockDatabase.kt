@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 @Database(
     entities = [
@@ -13,7 +14,7 @@ import androidx.room.RoomDatabase
         ClipEntity::class
     ],
     version = 2,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class DockDatabase : RoomDatabase() {
     abstract fun dockAppDao(): DockAppDao
@@ -27,16 +28,24 @@ abstract class DockDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): DockDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    DockDatabase::class.java,
-                    "dock_database"
+                val applicationContext = context.applicationContext
+                val passphrase = DatabasePassphraseStore(applicationContext).getOrCreate()
+                PlaintextDatabaseMigrator.migrateIfNeeded(
+                    applicationContext.getDatabasePath(DATABASE_NAME),
+                    passphrase
                 )
-                .fallbackToDestructiveMigration()
+                val instance = Room.databaseBuilder(
+                    applicationContext,
+                    DockDatabase::class.java,
+                    DATABASE_NAME
+                )
+                .openHelperFactory(SupportOpenHelperFactory(passphrase))
                 .build()
                 INSTANCE = instance
                 instance
             }
         }
+
+        private const val DATABASE_NAME = "dock_database"
     }
 }

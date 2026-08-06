@@ -50,7 +50,7 @@ Erweiterbarkeit liefern könnten:
 | Appendix | Vorhanden | Fügt Clipboard-Inhalte einer lokalen Markdown-Liste hinzu |
 | Quick Actions | Teilweise | Lokale Regex-Erkennung und Android-Intents; keine echte AI- oder IBAN-Validierung |
 | Handoffs | Vorhanden | Share, Websuche, Maps und „Send to AI“ über Android-App-Chooser |
-| Logcat Inspector | Teilweise | Funktioniert nur mit privilegiertem `READ_LOGS`-ADB-Grant |
+| App-Diagnostik | Teilweise | Zeigt nur die von Android für den eigenen Prozess freigegebenen Logs; keine privilegierte Gerätesicht |
 | Emergency/Private Mode | Teilweise | Stoppt Overlay bzw. neue Aufzeichnung; verschlüsselt keine vorhandenen Daten |
 | Apps | Optionales APK | Liest nach Installation reale Launcher-Apps, filtert nach Label/Package, startet Apps und öffnet Android-Appdetails |
 | Files | Vorhanden | Navigiert echte DocumentProvider-Verzeichnisse per SAF, behält URI-Rechte und öffnet Dateien über Android |

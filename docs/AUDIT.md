@@ -26,7 +26,7 @@ noch nicht abschließend berücksichtigt.
 | Appendix | Hängt Clipboard-Texte als Markdown-Liste in SharedPreferences an | `SettingsManager` |
 | Quick Actions | Lokale Regex-Erkennung für URL, E-Mail, IBAN, Telefon, Adresse und Stacktraces | `QuickActionHelper` |
 | Handoffs | Android-Intents für Share, Browser-Suche, Maps sowie AI-App-Chooser | `HandoffHelper` |
-| Logcat | Liest/leert `logcat` nach separat per ADB gewährtem `READ_LOGS` | `LogReaderHelper` |
+| Diagnostik | Liest ausschließlich die von Android für die eigene App freigegebenen Logs | `LogReaderHelper` |
 | Konfiguration | Position, Größe, Opazität, Edge, Privacy-/Emergency-/Appendix-Schalter | `DockSettings`, `BorderlineActivity` |
 | Integration | Custom URI, Broadcast-Receiver und Shortcut-Activity öffnen Overlay-Menüs | `ShortcutActivity`, `BorderlineShortcutReceiver` |
 
@@ -43,17 +43,24 @@ noch nicht abschließend berücksichtigt.
 - **Position und Opazität teilweise wirkungslos:** `positionY`, `barOpacity` und
   `iconOpacity` werden konfiguriert, aber die aktuelle Overlay-Anordnung nutzt
   sie nicht vollständig.
-- **Private Mode ist kein Vault:** Er stoppt neue Clipboard-Aufnahmen, schützt
-  aber bereits gespeicherte Clips/Snippets weder durch Verschlüsselung noch
-  durch Authentifizierung.
-- **Clipboard-Limit ist nur ein Query-Limit:** Die DAO zeigt 50 Clips, löscht
-  ältere Datensätze jedoch nicht aus der Datenbank.
+- **Private Mode ist keine zusätzliche Authentifizierung:** Er stoppt neue
+  Clipboard-Aufnahmen; die Room-Datei ist inzwischen vollständig mit SQLCipher
+  und einer per Android Keystore geschützten Zufallspassphrase verschlüsselt.
+  Eine separate biometrische Zugriffssperre innerhalb der laufenden App fehlt.
+- **Clipboard-Historie ist opt-in und verschlüsselt:** Duplikate werden ersetzt,
+  Einträge auf 100.000 Zeichen begrenzt und nicht angeheftete Einträge nach
+  30 Tagen oder oberhalb von 50 Datensätzen gelöscht. Bestehende Klartextbanken
+  werden vor dem Öffnen atomar exportiert und erst nach Integritätsprüfung
+  ersetzt.
 - **IBAN wird nicht validiert:** Der Text „Validated IBAN“ basiert nur auf einem
   Regex-Match; eine Mod-97-Prüfung fehlt.
-- **Fehler werden verschluckt:** Einschränkungen des Background-Clipboard werden
-  pauschal gefangen, ohne Status für Nutzer oder Diagnose.
-- **Datenbankmigration:** `fallbackToDestructiveMigration()` kann Nutzerdaten bei
-  Schemaänderungen löschen.
+- **Clipboard-Diagnose bleibt grob:** Einschränkungen des Background-Clipboard
+  werden nun im Control Center angezeigt, aber noch nicht nach genauer
+  Android-Ursache oder Herstellerverhalten aufgeschlüsselt.
+- **Historische Migrationen nicht rekonstruierbar:** Der destruktive Fallback
+  wurde entfernt und Schema 2 als versionierte Ausgangsbasis exportiert. Der
+  Originalexport enthielt ebenfalls nur Version 2; deshalb wird keine
+  spekulative Migration von einer unbekannten Version 1 implementiert.
 
 ## Was in AXOLOTL übernommen wurde
 
@@ -81,33 +88,36 @@ Automate sowie AI & Models und öffnet Borderline als gemeinsamen Rahmen.
 | AI-Studio Release-/Debug-Signing-Konfiguration entfernt | Keine lokalen Keystore-Annahmen oder Klartext-Debug-Credentials im Build |
 | Unbenutzte Firebase-, Retrofit-, OkHttp-, Moshi- und Secrets-Abhängigkeiten entfernt | Hyperdock hatte dafür keinen ausführenden Code; kleinere und ehrlichere Angriffsfläche |
 | Overlay-Service und Broadcast-Receiver nicht exportiert | Andere Apps dürfen keine internen Komponenten direkt starten oder Daten schreiben |
+| `READ_LOGS` und `QUERY_ALL_PACKAGES` entfernt | Nur app-sichtbare Logs sowie gezielte Launcher-/Modul-Abfragen statt privilegierter Sichtbarkeit |
+| Externe `borderline://open`-Links bestätigt | Browser und Fremd-Apps dürfen das Overlay nicht mehr ohne Nutzerfreigabe öffnen |
 | Schreibende `borderline://add-snippet`-/`appendix`-Deep-Links entfernt | Beliebige Webseiten/Apps hätten sonst unbestätigt lokale Inhalte verändern können |
 | AI-Studio-Metadaten, generisches README, `.aistudio`, `.env` und Signing-Artefakte nicht in die App kopiert | Generierter Ballast und Secret-Risiko |
 | Screenshot-/App-Namens-Tests auf AXOLOTL angepasst | Alte Tests referenzierten eine nicht vorhandene `Greeting`-Composable bzw. „My Application“ |
 
-Das unveränderte ZIP bleibt ausschließlich als Provenienzreferenz im Repository;
-es ist nicht Teil des Android-Builds.
+Der Name des inzwischen entfernten Quell-ZIPs bleibt im Provenienzkatalog
+dokumentiert; das Archiv ist nicht Teil des Repositorys oder Android-Builds.
 
 ## Offene Risiken, priorisiert
 
 ### P0 – vor Verteilung
 
-1. Room verschlüsseln oder Clipboard-History standardmäßig deaktivieren; klare
-   Retention und echtes Löschen ergänzen.
-2. `READ_LOGS` und `QUERY_ALL_PACKAGES` auf Produktnotwendigkeit/Play-Policy
-   prüfen; wenn möglich durch engere APIs ersetzen.
-3. Foreground-Service-Typ, Notification-Permission und Startrestriktionen auf
-   Android 13–15 auf Geräten testen.
-4. Explizite Room-Migrationen statt destruktivem Fallback schreiben.
-5. Deep Links mit Android App Links oder bestätigender UI absichern.
+1. Foreground-Service-Startrestriktionen auf realen Android-13–15-Geräten und
+   relevanten Hersteller-ROMs testen; Manifest-/Notification-Verträge sind per
+   Robolectric abgesichert.
+2. Den nativen Klartext-zu-SQLCipher-Instrumentationstest in der Geräte-CI auf
+   allen unterstützten ABIs ausführen.
+3. Bei jeder künftigen Schemaänderung eine explizite Room-Migration samt
+   Migrationstest gegen die versionierten Schemas schreiben.
+4. Falls künftig HTTPS-Deep-Links hinzukommen, Android App Links mit verifizierter
+   Domain verwenden; der bestehende Custom-Scheme-Link verlangt Bestätigung.
 
 ### P1 – bevor weitere Features andocken
 
 1. Borderline-Zustand aus Activity/Service in gemeinsame Core-Repositories
    verschieben und per Dependency Injection bereitstellen.
 2. UI-Einstellungen entweder vollständig verdrahten oder entfernen.
-3. Clipboard-Deduplizierung, Größenlimit und Hintergrundrestriktionsstatus
-   implementieren.
+3. Status und Diagnose für moderne Android-Hintergrundrestriktionen des
+   Clipboards implementieren.
 4. Quick-Action-Erkennung als reine, umfassend getestete Domainlogik auslagern;
    IBAN korrekt validieren.
 5. Service- und Receiver-Lifecycle, Prozessneustart und Emergency-Off mit
@@ -119,8 +129,8 @@ es ist nicht Teil des Android-Builds.
   den Build zu übernehmen.
 - `rg` über Imports, Manifest, Room, Intents, Berechtigungen und TODOs trennt
   tatsächlich ausführenden Code von Labels und deklarierten Dependencies.
-- `scripts/verify_prototypes.py` stellt sicher, dass nur die sechs vereinbarten
-  Prototype-Archive als Referenzen vorliegen.
+- `scripts/verify_prototypes.py` validiert die sechs Provenienzeinträge und
+  stellt sicher, dass keine Prototype-ZIP-Dateien eingecheckt sind.
 - Gradle-Tests sind der verbindliche Buildcheck; Netzwerk-/SDK-Einschränkungen
   müssen als solche ausgewiesen und dürfen nicht als bestandener Test behauptet
   werden.
