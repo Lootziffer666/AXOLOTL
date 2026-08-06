@@ -1,53 +1,87 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "prototypes": [
     {
-      "archive": "ai-router (1).zip",
       "name": "BELLOWS",
       "platform": "android",
       "domain": "ai-routing",
       "targetModule": "core:ai",
-      "capabilities": ["local-router", "provider-routing", "memory-wiki"]
+      "capabilities": [
+        "local-router",
+        "provider-routing",
+        "memory-wiki"
+      ],
+      "sourceArchive": "ai-router (1).zip"
     },
     {
-      "archive": "app-cluster-ai.zip",
       "name": "App Cluster AI",
       "platform": "android",
       "domain": "apps",
       "targetModule": "feature:apps",
-      "capabilities": ["app-catalog", "llm-clustering", "design-inspection", "batch-uninstall"]
+      "capabilities": [
+        "app-catalog",
+        "llm-clustering",
+        "design-inspection",
+        "batch-uninstall"
+      ],
+      "sourceArchive": "app-cluster-ai.zip"
     },
     {
-      "archive": "everything-files (1).zip",
       "name": "Everything Files",
       "platform": "android",
       "domain": "files",
       "targetModule": "feature:files",
-      "capabilities": ["content-index", "search", "versions", "duplicates", "vault", "network-files"]
+      "capabilities": [
+        "content-index",
+        "search",
+        "versions",
+        "duplicates",
+        "vault",
+        "network-files"
+      ],
+      "sourceArchive": "everything-files (1).zip"
     },
     {
-      "archive": "evolver-engine.zip",
       "name": "Evolver Engine",
       "platform": "android",
       "domain": "automation",
       "targetModule": "feature:automation",
-      "capabilities": ["generative-ui", "snapshots", "integrity-checks", "runtime-log"]
+      "capabilities": [
+        "generative-ui",
+        "snapshots",
+        "integrity-checks",
+        "runtime-log"
+      ],
+      "sourceArchive": "evolver-engine.zip"
     },
     {
-      "archive": "hyperdock (1).zip",
       "name": "Borderline Dock",
       "platform": "android",
       "domain": "dock",
       "targetModule": "feature:dock",
-      "capabilities": ["overlay", "clipboard", "snippets", "handoff", "quick-actions"]
+      "capabilities": [
+        "overlay",
+        "clipboard",
+        "snippets",
+        "handoff",
+        "quick-actions"
+      ],
+      "sourceArchive": "hyperdock (1).zip"
     },
     {
-      "archive": "nexus-modubrowser.zip",
       "name": "Nexus ModuBrowser",
       "platform": "android",
       "domain": "browser",
       "targetModule": "feature:browser",
-      "capabilities": ["webview", "native-modules", "mcp", "notebook-export", "github-sync", "virtual-clipboard"]
+      "capabilities": [
+        "webview",
+        "native-modules",
+        "mcp",
+        "notebook-export",
+        "github-sync",
+        "virtual-clipboard"
+      ],
+      "sourceArchive": "nexus-modubrowser.zip"
     }
   ]
 }
