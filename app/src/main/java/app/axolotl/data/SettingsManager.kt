@@ -1,0 +1,116 @@
+package app.axolotl.data
+
+import android.content.Context
+import android.content.SharedPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+enum class ControlMode {
+    GESTURE, ACTION_BUTTON, MULTI_HANDLE
+}
+
+enum class DockEdge {
+    LEFT, RIGHT
+}
+
+data class DockSettings(
+    val edge: DockEdge = DockEdge.LEFT,
+    val positionY: Float = 0.5f,
+    val dockSize: Float = 1.0f,
+    val barOpacity: Float = 0.2f,
+    val dockOpacity: Float = 0.9f,
+    val iconOpacity: Float = 1.0f,
+    val controlMode: ControlMode = ControlMode.GESTURE,
+    val buttonX: Int = 0,
+    val buttonY: Int = 200,
+    val appendixMode: Boolean = false,
+    val appendixDraft: String = "",
+    val privateMode: Boolean = false,
+    val emergencyOff: Boolean = false,
+    val sensitiveAppMode: Boolean = true,
+    val captureDraft: String = ""
+)
+
+class SettingsManager private constructor(context: Context) {
+    private val prefs: SharedPreferences = context.getSharedPreferences("dock_settings", Context.MODE_PRIVATE)
+
+    private val _settings = MutableStateFlow(loadSettings())
+    val settings: StateFlow<DockSettings> = _settings.asStateFlow()
+
+    private fun loadSettings(): DockSettings {
+        return DockSettings(
+            edge = DockEdge.valueOf(prefs.getString("edge", DockEdge.LEFT.name) ?: DockEdge.LEFT.name),
+            positionY = prefs.getFloat("positionY", 0.5f),
+            dockSize = prefs.getFloat("dockSize", 1.0f),
+            barOpacity = prefs.getFloat("barOpacity", 0.2f),
+            dockOpacity = prefs.getFloat("dockOpacity", 0.9f),
+            iconOpacity = prefs.getFloat("iconOpacity", 1.0f),
+            controlMode = ControlMode.valueOf(prefs.getString("controlMode", ControlMode.GESTURE.name) ?: ControlMode.GESTURE.name),
+            buttonX = prefs.getInt("buttonX", 0),
+            buttonY = prefs.getInt("buttonY", 200),
+            appendixMode = prefs.getBoolean("appendixMode", false),
+            appendixDraft = prefs.getString("appendixDraft", "") ?: "",
+            privateMode = prefs.getBoolean("privateMode", false),
+            emergencyOff = prefs.getBoolean("emergencyOff", false),
+            sensitiveAppMode = prefs.getBoolean("sensitiveAppMode", true),
+            captureDraft = prefs.getString("captureDraft", "") ?: ""
+        )
+    }
+
+    fun updateSettings(newSettings: DockSettings) {
+        prefs.edit().apply {
+            putString("edge", newSettings.edge.name)
+            putFloat("positionY", newSettings.positionY)
+            putFloat("dockSize", newSettings.dockSize)
+            putFloat("barOpacity", newSettings.barOpacity)
+            putFloat("dockOpacity", newSettings.dockOpacity)
+            putFloat("iconOpacity", newSettings.iconOpacity)
+            putString("controlMode", newSettings.controlMode.name)
+            putInt("buttonX", newSettings.buttonX)
+            putInt("buttonY", newSettings.buttonY)
+            putBoolean("appendixMode", newSettings.appendixMode)
+            putString("appendixDraft", newSettings.appendixDraft)
+            putBoolean("privateMode", newSettings.privateMode)
+            putBoolean("emergencyOff", newSettings.emergencyOff)
+            putBoolean("sensitiveAppMode", newSettings.sensitiveAppMode)
+            putString("captureDraft", newSettings.captureDraft)
+        }.apply()
+        _settings.value = newSettings
+    }
+
+    fun appendToAppendix(text: String) {
+        val current = _settings.value
+        val cleanText = text.trim()
+        if (cleanText.isEmpty()) return
+        val newDraft = if (current.appendixDraft.isEmpty()) {
+            "- $cleanText"
+        } else {
+            "${current.appendixDraft}\n- $cleanText"
+        }
+        updateSettings(current.copy(appendixDraft = newDraft))
+    }
+
+    fun clearAppendix() {
+        val current = _settings.value
+        updateSettings(current.copy(appendixDraft = ""))
+    }
+
+    fun saveCaptureDraft(draft: String) {
+        val current = _settings.value
+        updateSettings(current.copy(captureDraft = draft))
+    }
+
+    companion object {
+        @Volatile
+        private var INSTANCE: SettingsManager? = null
+
+        fun getInstance(context: Context): SettingsManager {
+            return INSTANCE ?: synchronized(this) {
+                val instance = SettingsManager(context.applicationContext)
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
+}
