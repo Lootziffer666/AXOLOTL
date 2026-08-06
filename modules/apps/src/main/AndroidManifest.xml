@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+    <application android:label="AXOLOTL Apps" android:theme="@android:style/Theme.Material.NoActionBar">
+        <activity android:name=".AppsActivity" android:exported="true" android:label="Apps">
+            <intent-filter>
+                <action android:name="app.axolotl.action.MODULE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="app.axolotl.module.ID" android:value="apps" />
+            <meta-data android:name="app.axolotl.module.TITLE" android:value="Apps" />
+            <meta-data android:name="app.axolotl.module.DESCRIPTION" android:value="Search and open installed launcher apps" />
+            <meta-data android:name="app.axolotl.module.VERSION" android:value="1" />
+            <meta-data android:name="app.axolotl.module.ICON" android:value="APPS" />
+            <meta-data android:name="app.axolotl.module.CAPABILITIES" android:value="APP_CATALOG" />
+        </activity>
+    </application>
+</manifest>
