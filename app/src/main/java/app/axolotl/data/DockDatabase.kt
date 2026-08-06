@@ -13,7 +13,7 @@ import androidx.room.RoomDatabase
         ClipEntity::class
     ],
     version = 2,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class DockDatabase : RoomDatabase() {
     abstract fun dockAppDao(): DockAppDao
@@ -32,7 +32,6 @@ abstract class DockDatabase : RoomDatabase() {
                     DockDatabase::class.java,
                     "dock_database"
                 )
-                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance

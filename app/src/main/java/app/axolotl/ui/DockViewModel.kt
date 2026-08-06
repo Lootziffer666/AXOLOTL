@@ -61,6 +61,9 @@ class DockViewModel(application: Application) : AndroidViewModel(application) {
             database.snippetDao(),
             database.clipDao()
         )
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.pruneExpiredClips()
+        }
 
         dockItemsState = repository.allDockItems.stateIn(
             scope = viewModelScope,

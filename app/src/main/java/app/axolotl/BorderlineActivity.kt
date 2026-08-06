@@ -85,6 +85,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import app.axolotl.data.DockEdge
+import app.axolotl.data.ClipboardCaptureState
 import app.axolotl.ui.DockViewModel
 import app.axolotl.ui.SettingsViewModel
 import app.axolotl.ui.theme.MyApplicationTheme
@@ -694,6 +695,7 @@ fun ProvisioningTab(
     dockViewModel: DockViewModel
 ) {
     val context = LocalContext.current
+    val clipboardCaptureStatus by settingsViewModel.clipboardCaptureStatus.collectAsState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -717,6 +719,44 @@ fun ProvisioningTab(
                                 Toast.makeText(context, if (off) "Emergency Off Active" else "Borderline Active", Toast.LENGTH_SHORT).show()
                             },
                             colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFFEF4444))
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            GlassCard {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.ContentCopy, contentDescription = "Clipboard History", tint = Color(0xFFC084FC), modifier = Modifier.size(32.dp))
+                        Spacer(Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Clipboard History", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFFF8FAFC))
+                            Text(
+                                "Off by default · keeps up to 50 clips for 30 days",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFFA1A1AA)
+                            )
+                            Text(
+                                clipboardCaptureStatus.message,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = when (clipboardCaptureStatus.state) {
+                                    ClipboardCaptureState.BLOCKED -> Color(0xFFEF4444)
+                                    ClipboardCaptureState.FAILED -> Color(0xFFEF4444)
+                                    ClipboardCaptureState.CAPTURED -> Color(0xFF4ADE80)
+                                    ClipboardCaptureState.IDLE -> Color(0xFFA1A1AA)
+                                }
+                            )
+                        }
+                        Switch(
+                            checked = settings.clipboardHistoryEnabled,
+                            onCheckedChange = { enabled ->
+                                settingsViewModel.updateSettings(
+                                    settings.copy(clipboardHistoryEnabled = enabled)
+                                )
+                            },
+                            colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFFA855F7))
                         )
                     }
                 }

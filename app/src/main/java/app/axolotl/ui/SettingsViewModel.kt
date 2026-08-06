@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.axolotl.data.DockSettings
+import app.axolotl.data.ClipboardCaptureStatus
 import app.axolotl.data.SettingsManager
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +19,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = DockSettings()
     )
+
+    val clipboardCaptureStatus: StateFlow<ClipboardCaptureStatus> =
+        settingsManager.clipboardCaptureStatus
 
     fun updateSettings(newSettings: DockSettings) {
         viewModelScope.launch {
