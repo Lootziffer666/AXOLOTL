@@ -27,11 +27,15 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK 35
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
       - name: Compile standalone module
-        run: gradle --no-daemon --stacktrace ${{ inputs.gradle-task }}
+        run: gradle --no-daemon --stacktrace -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true ${{ inputs.gradle-task }}
       - name: Upload module APK
         uses: actions/upload-artifact@v4
         with:

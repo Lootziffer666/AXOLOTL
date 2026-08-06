@@ -38,9 +38,12 @@ mehr. Unbekannte Module sind daher kein Buildfehler und keine Voraussetzung.
   eine eindeutige Modul-ID vergeben.
 - **Separates APK:** denselben Intent-/Metadaten-Vertrag veröffentlichen. AXOLOTL
   entdeckt das installierte APK ohne Codeabhängigkeit.
-- **Bundled:** Die derzeitigen Apps-, Files-, Browser-, AI- und Automate-
-  Activities nutzen bereits genau denselben Vertrag. Sie können später ohne
-  Änderung an der Shell in eigene APK-/Feature-Module verschoben werden.
+- **Bundled:** Files, Browser, AI und Automate nutzen derzeit denselben Vertrag
+  innerhalb der Shell-APK.
+- **Standalone:** Apps und PWA Studio liegen als unabhängige Gradle-Projekte
+  unter `modules/apps` und `modules/pwa`. Beide erzeugen eigene APKs und sind
+  keine Build-Abhängigkeiten von `:app`. Nicht installierte Module erscheinen
+  nicht in der Shell.
 
 ## Grenzen
 
@@ -59,7 +62,22 @@ aus:
    Pflichtmetadaten, eindeutige IDs und vorhandene Activity-Quellen.
 2. Gradle kompiliert `:app:assembleDebug`. Weil die aktuell gebündelten Module
    Android-Quellen desselben APKs sind, werden sie dabei gemeinsam typgeprüft
-   und in `app-debug.apk` paketiert. Anschließend läuft `:app:testDebugUnitTest`.
+   und in `app-debug.apk` paketiert. `:module-apps:assembleDebug` und
+   `:module-pwa:assembleDebug` kompilieren zusätzlich die unabhängigen Modul-
+   APKs. Anschließend laufen die App- und PWA-Sandbox-Tests.
+
+## PWA Studio
+
+Das optionale PWA-Studio-APK erstellt benannte lokale Webmodule, speichert deren
+HTML ausschließlich im privaten App-Verzeichnis und führt sie unter dem
+HTTPS-Ursprung `appassets.androidplatform.net` aus. JavaScript ist innerhalb
+des Moduls erlaubt; eine Content-Security-Policy blockiert Netzwerkzugriffe,
+externe Frames, Plugins und fremde Ressourcen. Es gibt keine JavaScript-Bridge
+in native AXOLOTL-Funktionen, keinen Datei-/Content-Zugriff und kein Mixed
+Content. Module können geladen, bearbeitet, ausgeführt und gelöscht werden.
+
+Das ist bewusst ein lokaler PWA-/Webmodul-Runner. Service-Worker-Hintergrund-
+ausführung und ungeprüfte Remote-Abhängigkeiten sind noch nicht freigeschaltet.
 
 Für ein in ein eigenes Repository/APK ausgelagertes Modul steht
 `.github/workflows/build-module.yml` als `workflow_call` bereit. Der aufrufende
@@ -76,4 +94,4 @@ jobs:
 
 Beide Workflows verwenden JDK 17 und Gradle 8.9 und brechen ab, wenn kein APK
 erzeugt wurde. Der Hauptworkflow lehnt außerdem binäre Bildressourcen unter
-`app/src` ab.
+`app/src` und `modules` ab.

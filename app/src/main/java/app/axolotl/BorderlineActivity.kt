@@ -30,14 +30,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Security
@@ -302,8 +302,8 @@ fun DockSetupTab(
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             PreviewHandle(Icons.Filled.Apps, "1. Dock", Color(0xFFA855F7))
-                            PreviewHandle(Icons.Filled.Assignment, "2. Snippets", Color(0xFFC084FC))
-                            PreviewHandle(Icons.Filled.FormatListBulleted, "3. Clipboard", Color(0xFFE9D5FF))
+                            PreviewHandle(Icons.AutoMirrored.Filled.Assignment, "2. Snippets", Color(0xFFC084FC))
+                            PreviewHandle(Icons.AutoMirrored.Filled.FormatListBulleted, "3. Clipboard", Color(0xFFE9D5FF))
                             PreviewHandle(Icons.Filled.FlashOn, "4. Actions", Color(0xFF7E22CE))
                         }
                     }

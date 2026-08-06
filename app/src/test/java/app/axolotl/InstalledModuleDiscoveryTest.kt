@@ -10,13 +10,13 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
+@Config(sdk = [34])
 class InstalledModuleDiscoveryTest {
     @Test
     fun `bundled optional activities are discovered only through manifest metadata`() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         assertEquals(
-            listOf("ai-models", "apps", "automate", "browser", "files"),
+            listOf("ai-models", "automate", "browser", "files"),
             InstalledModuleDiscovery(context).discover().map { it.module.manifest.id },
         )
     }

@@ -1,6 +1,5 @@
 package app.axolotl
 
-import android.app.Activity
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
@@ -12,6 +11,8 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
+import androidx.activity.result.contract.ActivityResultContracts
 
 /** Real Storage Access Framework browser; it never fabricates files or paths. */
 class FilesActivity : ComponentActivity() {
@@ -30,6 +31,16 @@ class FilesActivity : ComponentActivity() {
     private var treeUri: Uri? = null
     private val directoryStack = ArrayDeque<String>()
     private var entries: List<DocumentEntry> = emptyList()
+    private val chooseTree = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != RESULT_OK) return@registerForActivityResult
+        val data = result.data ?: return@registerForActivityResult
+        val tree = data.data ?: return@registerForActivityResult
+        val flags = data.flags and
+            (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        contentResolver.takePersistableUriPermission(tree, flags)
+        getPreferences(MODE_PRIVATE).edit().putString(PREF_TREE, tree.toString()).apply()
+        showTree(tree)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +50,7 @@ class FilesActivity : ComponentActivity() {
         }
         val choose = Button(this).apply {
             text = "Choose folder"
-            setOnClickListener { startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), REQUEST_TREE) }
+            setOnClickListener { chooseTree.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)) }
         }
         setContentView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -48,19 +59,15 @@ class FilesActivity : ComponentActivity() {
             addView(status)
             addView(list, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         })
+        onBackPressedDispatcher.addCallback(this) {
+            if (directoryStack.size > 1) {
+                directoryStack.removeLast()
+                showDirectory(directoryStack.last())
+            } else {
+                finish()
+            }
+        }
         getPreferences(MODE_PRIVATE).getString(PREF_TREE, null)?.let { showTree(Uri.parse(it)) }
-    }
-
-    @Deprecated("Activity result contract kept dependency-free for the first module slice")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != REQUEST_TREE || resultCode != Activity.RESULT_OK) return
-        val tree = data?.data ?: return
-        val flags = ((data?.flags ?: 0) and
-            (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
-        contentResolver.takePersistableUriPermission(tree, flags)
-        getPreferences(MODE_PRIVATE).edit().putString(PREF_TREE, tree.toString()).apply()
-        showTree(tree)
     }
 
     private fun showTree(tree: Uri) {
@@ -97,15 +104,6 @@ class FilesActivity : ComponentActivity() {
         )
     }
 
-    override fun onBackPressed() {
-        if (directoryStack.size > 1) {
-            directoryStack.removeLast()
-            showDirectory(directoryStack.last())
-        } else {
-            super.onBackPressed()
-        }
-    }
-
     private fun queryChildren(uri: Uri): List<DocumentEntry> {
         val projection = arrayOf(
             DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -126,7 +124,6 @@ class FilesActivity : ComponentActivity() {
     )
 
     companion object {
-        private const val REQUEST_TREE = 4102
         private const val PREF_TREE = "selected_tree"
     }
 }

@@ -49,10 +49,37 @@ def main() -> int:
             raise SystemExit(f"Module Activity source is missing: {source.relative_to(ROOT)}")
         modules[module_id] = name
 
-    expected = {"apps", "files", "browser", "ai-models", "automate"}
+    expected = {"files", "browser", "ai-models", "automate"}
     if modules.keys() != expected:
         raise SystemExit(f"Bundled module mismatch: expected={sorted(expected)}, actual={sorted(modules)}")
-    print(f"Verified {len(modules)} optional Android module contracts.")
+    standalone_modules = {
+        "apps": (
+            ROOT / "modules/apps/src/main/AndroidManifest.xml",
+            ROOT / "modules/apps/src/main/java/app/axolotl/module/apps/AppsActivity.kt",
+        ),
+        "pwa-studio": (
+            ROOT / "modules/pwa/src/main/AndroidManifest.xml",
+            ROOT / "modules/pwa/src/main/java/app/axolotl/module/pwa/PwaStudioActivity.kt",
+        ),
+    }
+    for expected_id, (manifest, source) in standalone_modules.items():
+        standalone_root = ET.parse(manifest).getroot()
+        standalone = standalone_root.find("./application/activity")
+        if standalone is None:
+            raise SystemExit(f"Standalone {expected_id} module Activity is missing")
+        standalone_meta = {
+            item.get(f"{ANDROID}name"): item.get(f"{ANDROID}value")
+            for item in standalone.findall("meta-data")
+        }
+        standalone_actions = {
+            item.get(f"{ANDROID}name")
+            for item in standalone.findall("./intent-filter/action")
+        }
+        if standalone_meta.get("app.axolotl.module.ID") != expected_id or ACTION not in standalone_actions:
+            raise SystemExit(f"Standalone {expected_id} module contract is invalid")
+        if not source.is_file():
+            raise SystemExit(f"Standalone {expected_id} module source is missing")
+    print(f"Verified {len(modules)} bundled and {len(standalone_modules)} standalone Android module contracts.")
     return 0
 
 

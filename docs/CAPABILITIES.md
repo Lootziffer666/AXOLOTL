@@ -6,13 +6,15 @@ Ein sichtbarer Button oder Dialog gilt hier **nicht** automatisch als Funktion.
 
 ## Direkte Antwort
 
-**AXOLOTL lädt weiterhin keine PWA- oder Fremdcode-Module.** Es besitzt jetzt
-aber den kontrollierten Evolver-Kern, über den App-Teile registriert und
+**AXOLOTL lädt keinen nativen Fremdcode.** Das optionale PWA Studio kann jedoch
+lokale HTML-/JavaScript-Webmodule erstellen, privat speichern und in einer
+netzwerkisolierten WebView ausführen. Zusätzlich besitzt AXOLOTL den
+kontrollierten Evolver-Kern, über den App-Teile registriert und
 declarative UI-Patches validiert, versioniert und zurückgerollt werden. Aktuell
-sind alle sechs registrierten Bereiche aktiv: Borderline, Apps, Files, Browser,
-AI & Models und Automate. Nur Borderline ist zwingender Kern; die übrigen fünf
-werden über Android-Manifest-Metadaten entdeckt und sind einzeln entfernbar oder
-als separates APK installierbar.
+sind Borderline, Files, Browser, AI & Models und Automate in der Shell-APK
+verfügbar. Apps wird als erstes echtes Standalone-Modul separat kompiliert und
+erscheint nur, wenn sein APK installiert ist. Nur Borderline ist zwingender
+Kern; alle übrigen Bereiche werden über Manifest-Metadaten entdeckt.
 
 Zwei Originalprototypen enthielten Konzepte, die später eine kontrollierte
 Erweiterbarkeit liefern könnten:
@@ -50,12 +52,12 @@ Erweiterbarkeit liefern könnten:
 | Handoffs | Vorhanden | Share, Websuche, Maps und „Send to AI“ über Android-App-Chooser |
 | Logcat Inspector | Teilweise | Funktioniert nur mit privilegiertem `READ_LOGS`-ADB-Grant |
 | Emergency/Private Mode | Teilweise | Stoppt Overlay bzw. neue Aufzeichnung; verschlüsselt keine vorhandenen Daten |
-| Apps | Vorhanden | Liest reale Launcher-Apps, filtert nach Label/Package, startet Apps und öffnet Android-Appdetails |
+| Apps | Optionales APK | Liest nach Installation reale Launcher-Apps, filtert nach Label/Package, startet Apps und öffnet Android-Appdetails |
 | Files | Vorhanden | Navigiert echte DocumentProvider-Verzeichnisse per SAF, behält URI-Rechte und öffnet Dateien über Android |
 | Browser | Vorhanden | Öffnet HTTP/HTTPS in einer gehärteten WebView ohne JavaScript, DOM Storage oder Datei-/Content-Zugriff |
 | AI & Models | Vorhanden | Sendet echte OpenAI-kompatible Chat-Completion-Requests an validierte HTTPS-Endpunkte; Token bleibt im Speicher |
 | Automate | Vorhanden | Wählt aktive Module, validiert manuelle deklarative Patches, versioniert sie und rollt sie zurück |
-| PWA-Module | Nicht vorhanden | Kein PWA-Repository, Editor oder WebView-Container im aktuellen App-Code |
+| PWA Studio | Optionales APK | Erstellt, speichert, lädt, startet und löscht lokale HTML/JavaScript-Module in einer CSP-isolierten WebView |
 | Modul-Discovery | Vorhanden | PackageManager entdeckt optionale Modul-Activities aus demselben oder separaten APKs |
 | Evolver-Patches | Vorhanden | Daten-Patches werden gegen UI-/Action-Allowlist, Revision, Tiefe und Größe validiert |
 | Rollback | Teilweise | Prozessweite In-Memory-Snapshots funktionieren; persistente Room-Snapshots folgen |
@@ -86,7 +88,9 @@ einer WebView, keine installierbaren nativen Feature-Module.
 OpenAI-kompatible Chat-Completion-Requests, trennt Transport von UI, erlaubt nur
 HTTPS-Endpoints auf `chat/completions`, setzt Timeouts und persistiert den Token
 nicht. Provider-Routing, Memory, lokaler Server und PWA-Container folgen als
-separate, testbare Ausbaustufen und werden noch nicht behauptet.
+separate, testbare Ausbaustufen. PWA-Erstellung/-Ausführung ist inzwischen als
+eigenes, optionales und netzwerkisoliertes APK vorhanden; eine Kopplung an den
+AI-Router wird noch nicht behauptet.
 
 ### 2. App Cluster AI
 

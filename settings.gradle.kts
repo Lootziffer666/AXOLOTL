@@ -23,3 +23,7 @@ dependencyResolutionManagement {
 rootProject.name = "AXOLOTL"
 
 include(":app")
+include(":module-apps")
+project(":module-apps").projectDir = file("modules/apps")
+include(":module-pwa")
+project(":module-pwa").projectDir = file("modules/pwa")

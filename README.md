@@ -47,8 +47,8 @@ schrittweisen Migration unveränderte Referenzen.
 
 Der Workflow [`.github/workflows/android.yml`](.github/workflows/android.yml)
 validiert die Modulverträge, kompiliert Shell und gebündelte Module, führt die
-Tests aus und veröffentlicht Debug-APK sowie Testreports. Separat installierbare
-Modul-Repositories können
+Tests aus und veröffentlicht Debug-APK, die separat installierbaren Apps- und
+PWA-Studio-Modul-APKs sowie Testreports. Weitere Modul-Repositories können
 [`build-module.yml`](.github/workflows/build-module.yml) als wiederverwendbaren
 Workflow aufrufen.
 

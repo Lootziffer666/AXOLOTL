@@ -29,8 +29,8 @@ class EvolverEngineTest {
         )
 
         assertTrue(result is EvolutionResult.Applied)
-        assertEquals(1, engine.currentSurface("borderline")?.revision)
-        assertEquals(0, engine.rollback("borderline")?.revision)
+        assertEquals(1L, engine.currentSurface("borderline")?.revision)
+        assertEquals(0L, engine.rollback("borderline")?.revision)
     }
 
     @Test

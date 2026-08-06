@@ -25,9 +25,15 @@ jobs:
         run: python3 scripts/verify_prototypes.py
       - name: Verify optional module contracts
         run: python3 scripts/verify_android_modules.py
+      - name: Reject unresolved merge markers
+        run: |
+          if git grep -n -E '^(<<<<<<<|=======|>>>>>>>)' -- ':!*.zip'; then
+            echo 'Unresolved merge conflict markers found' >&2
+            exit 1
+          fi
       - name: Reject binary app resources
         run: |
-          if find app/src -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.webp' \) -print -quit | grep -q .; then
+          if find app/src modules -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.webp' \) -print -quit | grep -q .; then
             echo 'Binary app resources are not allowed' >&2
             exit 1
           fi
@@ -42,19 +48,43 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK 35
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
           cache-read-only: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) }}
       - name: Compile app and all bundled optional modules
-        run: gradle --no-daemon --stacktrace :app:assembleDebug
+        run: gradle --no-daemon --stacktrace -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true :app:assembleDebug
+      - name: Compile standalone Apps module APK
+        run: gradle --no-daemon --stacktrace -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true :module-apps:assembleDebug
+      - name: Compile standalone PWA Studio module APK
+        run: gradle --no-daemon --stacktrace -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true :module-pwa:assembleDebug
       - name: Run JVM, Robolectric and Evolver tests
-        run: gradle --no-daemon --stacktrace :app:testDebugUnitTest
+        run: gradle --no-daemon --stacktrace -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true :app:testDebugUnitTest
+      - name: Run standalone module tests
+        run: gradle --no-daemon --stacktrace -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true :module-pwa:testDebugUnitTest
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: axolotl-debug-${{ github.sha }}
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload standalone Apps module APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: axolotl-module-apps-${{ github.sha }}
+          path: modules/apps/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload standalone PWA Studio module APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: axolotl-module-pwa-${{ github.sha }}
+          path: modules/pwa/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
       - name: Upload test reports

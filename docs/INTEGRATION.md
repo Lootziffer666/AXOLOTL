@@ -27,8 +27,9 @@ Revision, Node-Anzahl/-Tiefe, eindeutige IDs und registrierte Actions und führt
 Snapshots/Rollback. `ModuleActionDispatcher` führt nur Actions aktiver Module
 aus, für die die App explizit einen Handler gebunden hat.
 
-Alle sechs Bereiche sind jetzt aktive Module. Apps liest reale
-Launcher-Aktivitäten; Files navigiert DocumentProvider-Verzeichnisse über SAF;
+Alle sechs Bereiche sind implementiert. Apps ist bereits ein unabhängiges,
+optional installierbares APK und liest reale Launcher-Aktivitäten. Files
+navigiert DocumentProvider-Verzeichnisse über SAF;
 Browser stellt eine minimal gehärtete HTTP/HTTPS-WebView bereit; AI & Models
 sendet echte OpenAI-kompatible Requests über eine getrennte `AiGateway`-Grenze.
 Automate stellt den manuellen, validierten Apply-/Rollback-Pfad für deklarative

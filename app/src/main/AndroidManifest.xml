@@ -82,15 +82,6 @@
             <meta-data android:name="app.axolotl.module.ICON" android:value="BROWSER" />
             <meta-data android:name="app.axolotl.module.CAPABILITIES" android:value="WEB_CONTENT" />
         </activity>
-        <activity android:name=".AppsActivity" android:exported="true" android:label="Apps">
-            <intent-filter><action android:name="app.axolotl.action.MODULE" /><category android:name="android.intent.category.DEFAULT" /></intent-filter>
-            <meta-data android:name="app.axolotl.module.ID" android:value="apps" />
-            <meta-data android:name="app.axolotl.module.TITLE" android:value="Apps" />
-            <meta-data android:name="app.axolotl.module.DESCRIPTION" android:value="Search and open installed launcher apps" />
-            <meta-data android:name="app.axolotl.module.VERSION" android:value="1" />
-            <meta-data android:name="app.axolotl.module.ICON" android:value="APPS" />
-            <meta-data android:name="app.axolotl.module.CAPABILITIES" android:value="APP_CATALOG" />
-        </activity>
         <activity android:name=".AiModelsActivity" android:exported="true" android:label="AI &amp; Models">
             <intent-filter><action android:name="app.axolotl.action.MODULE" /><category android:name="android.intent.category.DEFAULT" /></intent-filter>
             <meta-data android:name="app.axolotl.module.ID" android:value="ai-models" />
