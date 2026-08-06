@@ -42,21 +42,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -139,6 +139,7 @@ class DockOverlayService : Service() {
 
     private var clipboardListener: ClipboardManager.OnPrimaryClipChangedListener? = null
 
+    @Suppress("DEPRECATION")
     private val params = WindowManager.LayoutParams(
         WindowManager.LayoutParams.WRAP_CONTENT,
         WindowManager.LayoutParams.MATCH_PARENT,
@@ -263,7 +264,7 @@ class DockOverlayService : Service() {
 
                             // Menu 2 Handle: Snippet Capsule
                             EdgeMenuHandle(
-                                icon = Icons.Filled.Assignment,
+                                icon = Icons.AutoMirrored.Filled.Assignment,
                                 label = "Snippets",
                                 color = Color(0xFFC084FC),
                                 sizeMultiplier = settings.dockSize,
@@ -274,7 +275,7 @@ class DockOverlayService : Service() {
 
                             // Menu 3 Handle: Clipboard+
                             EdgeMenuHandle(
-                                icon = Icons.Filled.FormatListBulleted,
+                                icon = Icons.AutoMirrored.Filled.FormatListBulleted,
                                 label = "Clipboard",
                                 color = Color(0xFFE9D5FF),
                                 sizeMultiplier = settings.dockSize,
@@ -564,10 +565,10 @@ fun FeatureDockCard(item: app.axolotl.data.DockItemEntity, onClick: () -> Unit) 
             verticalAlignment = Alignment.CenterVertically
         ) {
             val icon = when (item.itemKey) {
-                "feature:snippets" -> Icons.Filled.Assignment
-                "feature:clipboard" -> Icons.Filled.FormatListBulleted
+                "feature:snippets" -> Icons.AutoMirrored.Filled.Assignment
+                "feature:clipboard" -> Icons.AutoMirrored.Filled.FormatListBulleted
                 "feature:appendix" -> Icons.Filled.ContentCopy
-                else -> Icons.Filled.Send
+                else -> Icons.AutoMirrored.Filled.Send
             }
             Icon(icon, contentDescription = item.title, tint = Color(0xFFC084FC), modifier = Modifier.size(26.dp))
             Spacer(Modifier.width(12.dp))

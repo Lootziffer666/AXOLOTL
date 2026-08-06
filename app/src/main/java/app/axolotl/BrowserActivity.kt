@@ -9,6 +9,7 @@ import android.webkit.WebViewClient
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 
 /** Minimal real browser surface; optional prototype modules are not simulated. */
 class BrowserActivity : ComponentActivity() {
@@ -33,6 +34,13 @@ class BrowserActivity : ComponentActivity() {
                 }
             }
         }
+        onBackPressedDispatcher.addCallback(this) {
+            if (::webView.isInitialized && webView.canGoBack()) {
+                webView.goBack()
+            } else {
+                finish()
+            }
+        }
         address.setOnEditorActionListener { _, action, _ ->
             if (action == EditorInfo.IME_ACTION_GO) {
                 val value = address.text.toString().trim()
@@ -46,10 +54,6 @@ class BrowserActivity : ComponentActivity() {
             addView(address, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             addView(webView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         })
-    }
-
-    override fun onBackPressed() {
-        if (::webView.isInitialized && webView.canGoBack()) webView.goBack() else super.onBackPressed()
     }
 
     override fun onDestroy() {

@@ -66,7 +66,7 @@ class EvolverEngine(
 
     fun rollback(moduleId: String): ModuleSurface? {
         val snapshots = history[moduleId] ?: return registry.find(moduleId)?.initialSurface()
-        if (snapshots.isNotEmpty()) snapshots.removeLast()
+        if (snapshots.isNotEmpty()) snapshots.removeAt(snapshots.lastIndex)
         return snapshots.lastOrNull()?.surface ?: registry.find(moduleId)?.initialSurface()
     }
 
