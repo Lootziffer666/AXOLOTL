@@ -67,7 +67,7 @@ class NativeFeatureModule(
 fun createCoreModuleRegistry(): ModuleRegistry = ModuleRegistry(
     listOf(
         BorderlineModule(),
-        PlannedModule(ModuleManifest("apps", "Apps", "Cluster and manage installed apps", 1, ModuleIcon.APPS, setOf(ModuleCapability.APP_CATALOG))),
+        NativeFeatureModule(ModuleManifest("apps", "Apps", "Search and open installed launcher apps", 1, ModuleIcon.APPS, setOf(ModuleCapability.APP_CATALOG)), ModuleAction("apps.open", "Open apps")),
         NativeFeatureModule(ModuleManifest("files", "Files", "Browse real document-provider folders", 1, ModuleIcon.FILES, setOf(ModuleCapability.FILE_INDEX)), ModuleAction("files.open", "Open files")),
         NativeFeatureModule(ModuleManifest("browser", "Browser", "Hardened HTTP/HTTPS WebView", 1, ModuleIcon.BROWSER, setOf(ModuleCapability.WEB_CONTENT)), ModuleAction("browser.open", "Open browser")),
         PlannedModule(ModuleManifest("automate", "Automate", "Reviewed generative workflows", 1, ModuleIcon.AUTOMATE, setOf(ModuleCapability.GENERATIVE_UI))),

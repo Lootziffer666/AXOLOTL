@@ -9,7 +9,7 @@ Ein sichtbarer Button oder Dialog gilt hier **nicht** automatisch als Funktion.
 **AXOLOTL lädt weiterhin keine PWA- oder Fremdcode-Module.** Es besitzt jetzt
 aber den kontrollierten Evolver-Kern, über den App-Teile registriert und
 declarative UI-Patches validiert, versioniert und zurückgerollt werden. Aktuell
-sind Borderline, Files und Browser aktiv. Apps, Automate und AI & Models bleiben
+sind Borderline, Apps, Files und Browser aktiv. Automate und AI & Models bleiben
 registrierte, aber geplante Module (`NEXT`).
 
 Zwei Originalprototypen enthielten Konzepte, die später eine kontrollierte
@@ -49,9 +49,10 @@ Erweiterbarkeit liefern könnten:
 | Handoffs | Vorhanden | Share, Websuche, Maps und „Send to AI“ über Android-App-Chooser |
 | Logcat Inspector | Teilweise | Funktioniert nur mit privilegiertem `READ_LOGS`-ADB-Grant |
 | Emergency/Private Mode | Teilweise | Stoppt Overlay bzw. neue Aufzeichnung; verschlüsselt keine vorhandenen Daten |
-| Files | Vorhanden | Öffnet echte DocumentProvider-Verzeichnisse per SAF, übernimmt persistierbare URI-Rechte und listet reale Einträge |
+| Apps | Vorhanden | Liest reale Launcher-Apps, filtert nach Label/Package, startet Apps und öffnet Android-Appdetails |
+| Files | Vorhanden | Navigiert echte DocumentProvider-Verzeichnisse per SAF, behält URI-Rechte und öffnet Dateien über Android |
 | Browser | Vorhanden | Öffnet HTTP/HTTPS in einer gehärteten WebView ohne JavaScript, DOM Storage oder Datei-/Content-Zugriff |
-| Apps / Automate / AI | Nur Shell | Karten sind noch nicht klickbare Feature-Implementierungen |
+| Automate / AI | Nur Shell | Karten sind noch nicht klickbare Feature-Implementierungen |
 | PWA-Module | Nicht vorhanden | Kein PWA-Repository, Editor oder WebView-Container im aktuellen App-Code |
 | Modul-Registry | Vorhanden | Ein stabiler Vertrag registriert Borderline und fünf geplante Module |
 | Evolver-Patches | Vorhanden | Daten-Patches werden gegen UI-/Action-Allowlist, Revision, Tiefe und Größe validiert |
@@ -100,8 +101,11 @@ Design inspizieren und Apps gesammelt verwalten/deinstallieren.
 kopierbare Shell-Kommandos; Designanalyse basiert überwiegend auf erfassten
 Metadaten/UI; API-Key- und Modellkonfiguration sind Prototype-Code.
 
-**In AXOLOTL:** **nicht übernommen**. Die Apps-Karte ist nur Shell; lediglich
-Borderline besitzt bereits eine einfachere Launcher-App-Liste.
+**In AXOLOTL:** Ein echtes Apps-Basismodul ist aktiv. Es inventarisiert die vom
+PackageManager gemeldeten Launcher-Apps, sucht nach Label oder Package, startet
+Apps und öffnet bei langem Druck die echten Android-Appdetails. Gemini-Cluster,
+Designanalyse und privilegierte Batch-Deinstallation werden nicht behauptet,
+solange ihre sichere Implementierung fehlt.
 
 ### 3. Everything Files
 
@@ -207,8 +211,8 @@ wenn reale Backends und Tests existieren.
 | Gemeinsamer Rahmen | Borderline überall verfügbar | Grundkern vorhanden |
 | AI-Gateway | BELLOWS Router + Memory | Nicht vorhanden |
 | PWA-Erweiterungen | BELLOWS HTML-Module | Nicht vorhanden |
-| Apps | Cluster, Inspector, Batch-Aktionen | Nur Shell; einfacher Dock-App-Picker vorhanden |
-| Files | Index, Suche, Versionen | Reales SAF-Browsing vorhanden; Index/Versionen folgen |
+| Apps | Cluster, Inspector, Batch-Aktionen | Reales Inventar/Suche/Öffnen vorhanden; Cluster/Batch folgen |
+| Files | Index, Suche, Versionen | Reale SAF-Navigation/Dateiöffnung vorhanden; Index/Versionen folgen |
 | Vault/Remote Files | Sicherer Vault, SMB/FTP | Auch im Original nur Mock; nicht übernehmen |
 | Browser | WebView-Tabs + sichere Module | Gehärtete Single-WebView vorhanden; Tabs/Module folgen |
 | MCP/GitHub/Notebook | reale Integrationen | Im Original überwiegend Mock; nicht vorhanden |

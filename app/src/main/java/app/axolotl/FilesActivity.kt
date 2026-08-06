@@ -6,7 +6,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
@@ -16,18 +15,31 @@ import androidx.activity.ComponentActivity
 
 /** Real Storage Access Framework browser; it never fabricates files or paths. */
 class FilesActivity : ComponentActivity() {
+    private data class DocumentEntry(
+        val id: String,
+        val name: String,
+        val mime: String,
+        val size: Long?,
+    ) {
+        val isDirectory: Boolean get() = mime == DocumentsContract.Document.MIME_TYPE_DIR
+        override fun toString(): String = if (isDirectory) "📁 $name" else "$name\n$mime${size?.let { " · $it bytes" }.orEmpty()}"
+    }
+
     private lateinit var status: TextView
     private lateinit var list: ListView
+    private var treeUri: Uri? = null
+    private val directoryStack = ArrayDeque<String>()
+    private var entries: List<DocumentEntry> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         status = TextView(this).apply { text = "Choose a folder to browse" }
-        list = ListView(this)
+        list = ListView(this).apply {
+            setOnItemClickListener { _, _, position, _ -> openEntry(entries[position]) }
+        }
         val choose = Button(this).apply {
             text = "Choose folder"
-            setOnClickListener {
-                startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), REQUEST_TREE)
-            }
+            setOnClickListener { startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), REQUEST_TREE) }
         }
         setContentView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -44,44 +56,74 @@ class FilesActivity : ComponentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode != REQUEST_TREE || resultCode != Activity.RESULT_OK) return
         val tree = data?.data ?: return
-        val flags = (data?.flags ?: 0) and
-            (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        val flags = ((data?.flags ?: 0) and
+            (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
         contentResolver.takePersistableUriPermission(tree, flags)
         getPreferences(MODE_PRIVATE).edit().putString(PREF_TREE, tree.toString()).apply()
         showTree(tree)
     }
 
     private fun showTree(tree: Uri) {
-        val documentId = DocumentsContract.getTreeDocumentId(tree)
+        treeUri = tree
+        directoryStack.clear()
+        directoryStack.addLast(DocumentsContract.getTreeDocumentId(tree))
+        showDirectory(directoryStack.last())
+    }
+
+    private fun showDirectory(documentId: String) {
+        val tree = treeUri ?: return
         val children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, documentId)
-        val rows = runCatching { queryChildren(children) }.getOrElse {
+        entries = runCatching { queryChildren(children) }.getOrElse {
             status.text = "Folder cannot be read: ${it.message}"
             emptyList()
         }
-        status.text = "${rows.size} items · $tree"
-        list.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_2, android.R.id.text1, rows)
-        list.emptyView = TextView(this).apply { text = "This folder is empty"; visibility = View.VISIBLE }
+        status.text = "${entries.size} items · depth ${directoryStack.size}"
+        list.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, entries)
     }
 
-    private fun queryChildren(uri: Uri): List<String> {
+    private fun openEntry(entry: DocumentEntry) {
+        if (entry.isDirectory) {
+            directoryStack.addLast(entry.id)
+            showDirectory(entry.id)
+            return
+        }
+        val tree = treeUri ?: return
+        val uri = DocumentsContract.buildDocumentUriUsingTree(tree, entry.id)
+        startActivity(
+            Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, entry.mime)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            },
+        )
+    }
+
+    override fun onBackPressed() {
+        if (directoryStack.size > 1) {
+            directoryStack.removeLast()
+            showDirectory(directoryStack.last())
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun queryChildren(uri: Uri): List<DocumentEntry> {
         val projection = arrayOf(
+            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
             DocumentsContract.Document.COLUMN_DISPLAY_NAME,
             DocumentsContract.Document.COLUMN_MIME_TYPE,
             DocumentsContract.Document.COLUMN_SIZE,
         )
         return contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-            buildList {
-                while (cursor.moveToNext()) add(cursor.describeDocument())
-            }
-        }.orEmpty()
+            buildList { while (cursor.moveToNext()) add(cursor.toEntry()) }
+        }.orEmpty().sortedWith(compareByDescending<DocumentEntry> { it.isDirectory }.thenBy { it.name.lowercase() })
     }
 
-    private fun Cursor.describeDocument(): String {
-        val name = getString(0) ?: "Unnamed"
-        val mime = getString(1) ?: "unknown"
-        val size = if (isNull(2)) "" else " · ${getLong(2)} bytes"
-        return "$name\n$mime$size"
-    }
+    private fun Cursor.toEntry() = DocumentEntry(
+        id = getString(0),
+        name = getString(1) ?: "Unnamed",
+        mime = getString(2) ?: "application/octet-stream",
+        size = if (isNull(3)) null else getLong(3),
+    )
 
     companion object {
         private const val REQUEST_TREE = 4102

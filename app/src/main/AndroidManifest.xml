@@ -59,6 +59,7 @@
 
         <activity android:name=".FilesActivity" android:exported="false" android:label="Files" />
         <activity android:name=".BrowserActivity" android:exported="false" android:label="Browser" />
+        <activity android:name=".AppsActivity" android:exported="false" android:label="Apps" />
 
         <activity
             android:name=".MainActivity"

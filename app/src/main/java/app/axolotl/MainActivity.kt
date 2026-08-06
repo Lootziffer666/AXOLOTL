@@ -64,6 +64,9 @@ class MainActivity : ComponentActivity() {
                         bind("files.open") {
                             startActivity(Intent(this@MainActivity, FilesActivity::class.java))
                         }
+                        bind("apps.open") {
+                            startActivity(Intent(this@MainActivity, AppsActivity::class.java))
+                        }
                         bind("browser.open") {
                             startActivity(Intent(this@MainActivity, BrowserActivity::class.java))
                         }
