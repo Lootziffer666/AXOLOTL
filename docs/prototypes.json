@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "prototypes": [
+    {
+      "archive": "ai-router (1).zip",
+      "name": "BELLOWS",
+      "platform": "android",
+      "domain": "ai-routing",
+      "targetModule": "core:ai",
+      "capabilities": ["local-router", "provider-routing", "memory-wiki"]
+    },
+    {
+      "archive": "app-cluster-ai.zip",
+      "name": "App Cluster AI",
+      "platform": "android",
+      "domain": "apps",
+      "targetModule": "feature:apps",
+      "capabilities": ["app-catalog", "llm-clustering", "design-inspection", "batch-uninstall"]
+    },
+    {
+      "archive": "everything-files (1).zip",
+      "name": "Everything Files",
+      "platform": "android",
+      "domain": "files",
+      "targetModule": "feature:files",
+      "capabilities": ["content-index", "search", "versions", "duplicates", "vault", "network-files"]
+    },
+    {
+      "archive": "evolver-engine.zip",
+      "name": "Evolver Engine",
+      "platform": "android",
+      "domain": "automation",
+      "targetModule": "feature:automation",
+      "capabilities": ["generative-ui", "snapshots", "integrity-checks", "runtime-log"]
+    },
+    {
+      "archive": "hyperdock (1).zip",
+      "name": "Borderline Dock",
+      "platform": "android",
+      "domain": "dock",
+      "targetModule": "feature:dock",
+      "capabilities": ["overlay", "clipboard", "snippets", "handoff", "quick-actions"]
+    },
+    {
+      "archive": "nexus-modubrowser.zip",
+      "name": "Nexus ModuBrowser",
+      "platform": "android",
+      "domain": "browser",
+      "targetModule": "feature:browser",
+      "capabilities": ["webview", "native-modules", "mcp", "notebook-export", "github-sync", "virtual-clipboard"]
+    }
+  ]
+}
